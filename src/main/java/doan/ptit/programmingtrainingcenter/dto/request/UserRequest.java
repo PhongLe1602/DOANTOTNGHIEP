@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -19,6 +21,10 @@ public class UserRequest {
 
     @Size(min = 6 , message = "PASSWORD_INVALID")
     String password;
+
+    String gender;
+
+    Date birthDate;
 
     String phoneNumber;
 

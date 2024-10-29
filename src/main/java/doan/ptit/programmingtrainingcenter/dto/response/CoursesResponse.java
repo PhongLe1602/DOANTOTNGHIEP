@@ -40,9 +40,9 @@ public class CoursesResponse {
     int studentCount;
 
 
-    Category category;
+    CategoryResponse  category;
 
-    List<Section> sectionList;
+    List<SectionResponse> sectionList;
 
     List<User> instructorList;
 

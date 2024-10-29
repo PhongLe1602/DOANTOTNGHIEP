@@ -29,6 +29,10 @@ public class Enrollment {
     @JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_enrollment_course_id"), nullable = false)
     Course course; // Khóa học mà học viên đăng ký
 
+    @ManyToOne
+    @JoinColumn(name = "order_item_id", foreignKey = @ForeignKey(name = "FK_enrollment_order_item_id"))
+    OrderItem orderItem; // Link
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "enrollment_date", nullable = false)
@@ -45,6 +49,7 @@ public class Enrollment {
     Date lastAccessed; // Thời gian học viên lần cuối truy cập khóa học
 
     public enum Status {
+        INACTIVE,
         ACTIVE,
         COMPLETED,
         CANCELED,

@@ -1,11 +1,14 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.CategoryResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.SectionResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.Section;
+import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
+import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
-import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.SectionRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,22 +28,29 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private SectionRepository sectionRepository;
 
+    @Autowired
+    private CategoryMapper categoryMapper;
+
+    @Autowired
+    private SectionMapper sectionMapper;
 
     @Override
     public CoursesResponse getCourseById(String id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Courses Not Found"));
         List<Section>  sectionList =  sectionRepository.findByCourseId(id);
+        CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(course.getCategory());
+        List<SectionResponse> sectionResponseList = sectionMapper.toDtoList(sectionList);
         return CoursesResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
-                .category(course.getCategory())
+                .category(categoryResponse)
                 .level(course.getLevel())
                 .description(course.getDescription())
                 .price(course.getPrice())
                 .studentCount(course.getStudentCount())
                 .duration(course.getDuration())
                 .thumbnail(course.getThumbnail())
-                .sectionList(sectionList)
+                .sectionList(sectionResponseList)
                 .instructorList(course.getInstructors())
                 .createdAt(course.getCreatedAt())
                 .updatedAt(course.getUpdatedAt())

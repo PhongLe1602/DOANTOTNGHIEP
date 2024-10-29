@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,6 +34,7 @@ public class User {
     String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     String password;
 
     @Column(length = 10)

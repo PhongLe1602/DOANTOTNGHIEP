@@ -44,18 +44,6 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email Already Exists");
         }
-//        User userEntity = new User();
-//        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-//        userEntity.setEmail(userRequest.getEmail());
-//        userEntity.setFullName(userRequest.getFullName());
-//        userEntity.setPhoneNumber(String.valueOf(userRequest.getPhoneNumber()));
-//        userEntity.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-//        userEntity.setAddress(userRequest.getAddress());
-//        userEntity.setBio(userRequest.getBio());
-//        userEntity.setProfilePicture(userRequest.getProfilePicture());
-//        userEntity.setEmail(userRequest.getEmail());
-//        userEntity.setCreatedAt(new Date());
-//        userEntity.setUpdatedAt(new Date());
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = userMapper.toUser(userRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
