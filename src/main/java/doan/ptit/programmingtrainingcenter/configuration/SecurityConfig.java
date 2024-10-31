@@ -32,7 +32,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","api/orders/**","/api/payment-method/**","/api/payments/**"};
+    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","api/orders/**","/api/payment-method/**","/api/payments/**","/api/schedule/**"};
 
     private final  UserService userService;
 
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/auth/change-password").hasAuthority("ROLE_STUDENT")
                         // Người dùng có quyền 'VIEW_USER' mới được xem thông tin người dùng
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasAuthority("MANAGE_USERS")
+                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasAuthority("MANAGE_USERS")
 //                        .requestMatchers(HttpMethod.GET, "/api/courses/**").hasAuthority("MANAGE_COURSES")
                         .requestMatchers(HttpMethod.GET, "/api/topics/**").hasAuthority("MANAGE_COURSES")
                         .anyRequest().authenticated())

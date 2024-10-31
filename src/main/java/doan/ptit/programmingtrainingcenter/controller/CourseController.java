@@ -30,4 +30,9 @@ public class CourseController {
     CoursesResponse getCourseById(@PathVariable String id){
         return courseService.getCourseById(id);
     }
+
+    @GetMapping("/user/{userId}/enrollments")
+    public List<Course> getCoursesByUser(@PathVariable String userId) {
+        return courseService.getCoursesByUser(userId);
+    }
 }

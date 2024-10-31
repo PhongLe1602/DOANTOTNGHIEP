@@ -5,10 +5,12 @@ import doan.ptit.programmingtrainingcenter.dto.response.CategoryResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.SectionResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.entity.Section;
 import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
 import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
+import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.SectionRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,6 +36,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private SectionMapper sectionMapper;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
     @Override
     public CoursesResponse getCourseById(String id) {
@@ -74,6 +80,14 @@ public class CourseServiceImpl implements CourseService {
         course.setCreatedAt(new Date());
         course.setUpdatedAt(new Date());
         return courseRepository.save(course);
+    }
+
+    @Override
+    public List<Course> getCoursesByUser(String userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findByUserId(userId);
+        return enrollments.stream()
+                .map(Enrollment::getCourse)
+                .collect(Collectors.toList());
     }
 
 

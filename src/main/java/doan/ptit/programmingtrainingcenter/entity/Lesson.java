@@ -34,6 +34,9 @@ public class Lesson {
     String content;
 
     @Column(nullable = false)
+    String videoLink;
+
+    @Column(nullable = false)
     int duration; // Thời gian bài học (phút)
 
     @CreationTimestamp

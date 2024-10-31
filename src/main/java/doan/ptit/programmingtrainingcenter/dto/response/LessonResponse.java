@@ -8,5 +8,6 @@ public class LessonResponse {
     private String id;
     private String title;
     private String content;
+    private String videoLink;
     private String duration;
 }

@@ -13,5 +13,6 @@ public interface CourseService {
     CoursesResponse getCourseById(String id);
     List<Course> getCourse();
     Course addCourse(CoursesRequest coursesRequest);
+    List<Course> getCoursesByUser(String userId);
 
 }

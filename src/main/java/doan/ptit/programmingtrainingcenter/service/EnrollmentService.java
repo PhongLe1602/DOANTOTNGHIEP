@@ -12,4 +12,5 @@ public interface EnrollmentService {
     Enrollment addEnrollment(EnrollmentRequest enrollmentRequest);
     List<Enrollment> getEnrollments();
     List<Enrollment> getEnrollmentsByUser(String userId);
+    boolean checkEnrollment(String userId, String courseId);
 }

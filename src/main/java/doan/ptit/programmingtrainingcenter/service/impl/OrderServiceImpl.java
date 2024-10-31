@@ -59,6 +59,11 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.findAll();
     }
 
+    @Override
+    public Order getOrderById(String id) {
+        return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order Not Found"));
+    }
+
     // Helper method to get User entity
     private User getUser(String userId) {
         return userRepository.findById(userId)

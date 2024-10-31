@@ -5,6 +5,7 @@ import doan.ptit.programmingtrainingcenter.dto.request.EnrollmentRequest;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,5 +24,10 @@ public class EnrollmentController {
     @GetMapping("/user/{userId}")
     List<Enrollment> getEnrollments(@PathVariable("userId") String userId) {
         return enrollmentService.getEnrollmentsByUser(userId);
+    }
+    @GetMapping("/check")
+    public ResponseEntity<Boolean> checkEnrollment(@RequestParam String userId, @RequestParam String courseId) {
+        boolean isEnrolled = enrollmentService.checkEnrollment(userId, courseId);
+        return ResponseEntity.ok(isEnrolled);
     }
 }
