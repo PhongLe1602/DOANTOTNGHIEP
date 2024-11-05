@@ -11,4 +11,5 @@ public interface JwtService {
     boolean validateToken(String token, UserDetails user);
     Boolean isTokenExpired(String token);
     String generateRefreshToken(UserDetails userDetails);
+    String getUserIdFromToken(String token);
 }

@@ -9,6 +9,8 @@ import doan.ptit.programmingtrainingcenter.service.PaymentMethodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PaymentMethodServiceImpl implements PaymentMethodService {
     @Autowired
@@ -23,5 +25,16 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         PaymentMethod paymentMethod = paymentMethodMapper.toEntity(paymentMethodRequest);
 
         return paymentMethodRepository.save(paymentMethod);
+    }
+
+    @Override
+    public PaymentMethod getPaymentMethod(String paymentMethodId) {
+        return paymentMethodRepository.findById(paymentMethodId).
+                orElseThrow(() -> new RuntimeException("User Not Found"));
+    }
+
+    @Override
+    public List<PaymentMethod> getAllPaymentMethods() {
+        return paymentMethodRepository.findAll();
     }
 }

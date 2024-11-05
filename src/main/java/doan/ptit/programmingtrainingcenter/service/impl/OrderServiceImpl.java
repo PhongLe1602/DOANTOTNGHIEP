@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
+import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.OrderMapper;
@@ -7,6 +8,7 @@ import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -37,6 +39,9 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private PaymentServiceImpl paymentService;
 
+    @Autowired
+    private CartRepository cartRepository;
+
     @Override
     public Order addOrder(OrderRequest orderRequest) {
         User user = getUser(orderRequest.getUserId());
@@ -62,6 +67,49 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order getOrderById(String id) {
         return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order Not Found"));
+    }
+
+    @Transactional
+    public Order checkout(String userId,OrderCheckOutRequest orderCheckOutRequest) {
+        // Lấy giỏ hàng của người dùng
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
+
+        PaymentMethod paymentMethod = getPaymentMethod(orderCheckOutRequest.getPaymentMethodId());
+
+        // Tạo Order mới từ thông tin trong Cart
+        Order order = Order.builder()
+                .user(cart.getUser())
+                .totalAmount(cart.getTotalAmount())
+                .status(Order.OrderStatus.PENDING)
+                .paymentMethod(paymentMethod)
+                .paymentStatus(Order.PaymentStatus.PENDING)
+                .build();
+        // Chuyển từng CartItem thành OrderItem và thêm vào Order
+        List<OrderItem> orderItems = cart.getCartItems().stream()
+                .map(cartItem -> OrderItem.builder()
+                        .order(order)
+                        .course(cartItem.getCourse())
+                        .price(cartItem.getPrice())
+                        .build())
+                .toList();
+
+        // Gán danh sách OrderItem vào Order
+        order.setOrderItems(orderItems);
+
+        // Lưu Order
+        Order savedOrder = orderRepository.save(order);
+
+        // Xóa giỏ hàng sau khi đã tạo Order
+        cartRepository.delete(cart);
+
+        return savedOrder;
+
+    }
+
+    @Override
+    public List<Order> getOrdersByUserId(String userId) {
+        return orderRepository.findByUserId(userId);
     }
 
     // Helper method to get User entity

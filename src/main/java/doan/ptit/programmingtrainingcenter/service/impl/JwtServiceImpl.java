@@ -52,6 +52,12 @@ public class JwtServiceImpl implements JwtService {
     public String generateRefreshToken(UserDetails userDetails) {
         return generateRefreshToken(new HashMap<>() ,userDetails);
     }
+
+    @Override
+    public String getUserIdFromToken(String token) {
+        return extractAllClaims(token).get("userId", String.class);
+    }
+
     public Date getExpirationDateFromToken(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -77,6 +83,7 @@ public class JwtServiceImpl implements JwtService {
     private String generateToken(Map<String, Object> claims , UserDetails userDetails) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        claims.put("userId", customUserDetails.getId());
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(customUserDetails.getUsername())
@@ -89,6 +96,7 @@ public class JwtServiceImpl implements JwtService {
     private String generateRefreshToken(Map<String, Object> claims , UserDetails userDetails) {
 
         CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        claims.put("userId", customUserDetails.getId());
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(customUserDetails.getUsername())
@@ -97,6 +105,8 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(SignatureAlgorithm.HS512,getSigningKey())
                 .compact();
     }
+
+
 
 
 }
