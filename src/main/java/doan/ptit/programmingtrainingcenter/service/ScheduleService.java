@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.service;
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.RecurringScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Schedule;
@@ -14,4 +15,5 @@ public interface ScheduleService {
     ScheduleResponse getSchedule(String scheduleId);
 
     List<ScheduleResponse> getSchedulesByCourse(String courseId);
+    List<Schedule> createRecurringSchedules(RecurringScheduleRequest request);
 }

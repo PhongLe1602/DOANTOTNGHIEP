@@ -90,5 +90,31 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Course updateCourse(String courseId, CoursesRequest coursesRequest) {
+        Course existingCourse = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
+
+        // Cập nhật thông tin từ request
+        existingCourse.setTitle(coursesRequest.getTitle());
+        existingCourse.setDescription(coursesRequest.getDescription());
+        existingCourse.setDuration(coursesRequest.getDuration());
+        existingCourse.setPrice(BigDecimal.valueOf(coursesRequest.getPrice()));
+        existingCourse.setLevel(Course.Level.valueOf(coursesRequest.getLevel()));
+        existingCourse.setThumbnail(coursesRequest.getThumbnail());
+        existingCourse.setUpdatedAt(new Date());
+
+        // Lưu vào database
+        return courseRepository.save(existingCourse);
+    }
+
+    @Override
+    public Boolean deleteCourse(String courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Courses Not Found"));
+        courseRepository.delete(course);
+
+        return true;
+    }
+
 
 }

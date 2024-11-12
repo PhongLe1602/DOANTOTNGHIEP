@@ -59,4 +59,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/students")
+    public List<User> getAllStudents() {
+        return userService.getAllStudents();
+    }
+
+    @GetMapping("/instructors")
+    public List<User> getAllTeachers() {
+        return userService.getAllTeachers();
+    }
+
 }

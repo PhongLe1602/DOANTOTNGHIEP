@@ -15,6 +15,8 @@ public interface UserService {
     User updateUser(String id ,UserRequest userRequest);
     Boolean deleteUser(String id);
     void updateUserAvatar(String id, String avatarUrl);
+    List<User> getAllStudents();
+    List<User> getAllTeachers();
     
 
 

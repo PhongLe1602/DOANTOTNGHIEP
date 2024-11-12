@@ -23,4 +23,8 @@ public class SectionController {
     Section addSection(@RequestBody SectionRequest sectionRequest) {
         return sectionService.addSection(sectionRequest);
     }
+    @GetMapping("/courses/{courseId}")
+    List<Section> getSectionByCourseId(@PathVariable String courseId) {
+        return sectionService.getSectionsByCourses(courseId);
+    }
 }

@@ -35,4 +35,12 @@ public class CourseController {
     public List<Course> getCoursesByUser(@PathVariable String userId) {
         return courseService.getCoursesByUser(userId);
     }
+    @PutMapping("/{id}")
+    public Course updateCourse(@PathVariable String id, @RequestBody CoursesRequest request) {
+        return courseService.updateCourse(id, request);
+    }
+    @DeleteMapping("/{id}")
+    public boolean deleteCourse(@PathVariable String id) {
+        return courseService.deleteCourse(id);
+    }
 }

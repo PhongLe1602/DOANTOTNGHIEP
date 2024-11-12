@@ -1,18 +1,25 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
+import doan.ptit.programmingtrainingcenter.configuration.VNPayConfig;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.OrderResponse;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.OrderMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
+import java.math.RoundingMode;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +49,12 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartRepository cartRepository;
 
+    @Autowired
+    private VNPayConfig VNPayConfig;
+
+    @Autowired
+    private HttpServletRequest request;
+
     @Override
     public Order addOrder(OrderRequest orderRequest) {
         User user = getUser(orderRequest.getUserId());
@@ -70,7 +83,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public Order checkout(String userId,OrderCheckOutRequest orderCheckOutRequest) {
+    public OrderResponse checkout(String userId,OrderCheckOutRequest orderCheckOutRequest) {
         // Lấy giỏ hàng của người dùng
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
@@ -102,8 +115,17 @@ public class OrderServiceImpl implements OrderService {
 
         // Xóa giỏ hàng sau khi đã tạo Order
         cartRepository.delete(cart);
+        if ("VNPAY".equalsIgnoreCase(paymentMethod.getCode())) {
+            String paymentUrl = generateVnpayPaymentUrl(savedOrder,request);
+            return OrderResponse.builder()
+                    .order(savedOrder)
+                    .paymentUrl(paymentUrl)
+                    .build();
+        }
 
-        return savedOrder;
+        return OrderResponse.builder()
+                .order(savedOrder)
+                .build();
 
     }
 
@@ -162,6 +184,76 @@ public class OrderServiceImpl implements OrderService {
             enrollmentRepository.save(enrollment);
         });
     }
+
+    private String generateVnpayPaymentUrl(Order order, HttpServletRequest request) {
+        String vnpVersion = "2.1.0";
+        String command = "pay";
+        String orderType = "other";  // Sửa chính tả "orther" thành "other"
+        String vnpTxnRef = VNPayConfig.getRandomNumber(8);  // Mã giao dịch unique
+        String vnpIpAddr = VNPayConfig.getIpAddress(request);  // Lấy IP khách hàng từ request
+        String locale = "vn";
+        String currCode = "VND";
+
+        // Khởi tạo các tham số cần thiết
+        Map<String, String> vnpParams = new HashMap<>();
+        vnpParams.put("vnp_Version", vnpVersion);
+        vnpParams.put("vnp_Command", command);
+        vnpParams.put("vnp_TmnCode", VNPayConfig.getVnpTmnCode());
+
+        BigDecimal totalAmount = order.getTotalAmount().setScale(0, RoundingMode.DOWN); // Loại bỏ phần thập phân
+        vnpParams.put("vnp_Amount", totalAmount.multiply(new BigDecimal(10000)).toString());
+        vnpParams.put("vnp_CurrCode", currCode);
+        vnpParams.put("vnp_BankCode", "NCB");
+        vnpParams.put("vnp_TxnRef", vnpTxnRef);
+        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang");
+        vnpParams.put("vnp_OrderType", orderType);
+        vnpParams.put("vnp_ReturnUrl", VNPayConfig.getVnpReturnUrl());
+        vnpParams.put("vnp_IpAddr", vnpIpAddr);
+        vnpParams.put("vnp_Locale", locale);
+        vnpParams.put("vnp_CreateDate", new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+
+        // Tạo chuỗi query và hash data
+        List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+
+        for (Iterator<String> itr = fieldNames.iterator(); itr.hasNext(); ) {
+            String fieldName = itr.next();
+            String fieldValue = vnpParams.get(fieldName);
+            if (fieldValue != null && !fieldValue.isEmpty()) {
+                // Build hash data
+                hashData.append(fieldName).append('=').append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
+                // Build query string
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8))
+                        .append('=')
+                        .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
+
+                if (itr.hasNext()) {
+                    hashData.append('&');
+                    query.append('&');
+                }
+            }
+        }
+
+        // Tạo vnp_SecureHash sử dụng HMAC-SHA512
+        String secureHash = VNPayConfig.hmacSHA512(VNPayConfig.getSecretKey(), hashData.toString());
+
+        // Thêm vnp_SecureHash vào query string
+        query.append("&vnp_SecureHash=").append(secureHash);
+
+        System.out.println(VNPayConfig.getSecretKey());
+        System.out.println(secureHash);
+        System.out.println(query);
+
+        return VNPayConfig.getVnpPayUrl() + "?" + query.toString();
+    }
+
+
+    
+
+
+
 
 
 

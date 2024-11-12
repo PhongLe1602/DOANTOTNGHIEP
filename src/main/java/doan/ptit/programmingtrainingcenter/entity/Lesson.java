@@ -33,7 +33,7 @@ public class Lesson {
     @Column(columnDefinition = "TEXT")
     String content;
 
-    @Column(nullable = false)
+    @Column(length = 255)
     String videoLink;
 
     @Column(nullable = false)

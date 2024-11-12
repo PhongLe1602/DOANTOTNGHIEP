@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.RecurringScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Schedule;
@@ -30,5 +31,9 @@ public class ScheduleController {
     @GetMapping("/courses/{courseId}")
     List<ScheduleResponse> getScheduleByCourseId(@PathVariable String courseId) {
         return scheduleService.getSchedulesByCourse(courseId);
+    }
+    @PostMapping("/recurring")
+    public List<Schedule> createRecurringSchedules(@RequestBody RecurringScheduleRequest recurringScheduleRequest) {
+        return scheduleService.createRecurringSchedules(recurringScheduleRequest);
     }
 }

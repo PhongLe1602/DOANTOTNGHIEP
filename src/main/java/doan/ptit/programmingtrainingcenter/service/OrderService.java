@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.OrderResponse;
 import doan.ptit.programmingtrainingcenter.entity.Order;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,6 @@ public interface OrderService {
     Order addOrder(OrderRequest orderRequest);
     List<Order> getOrders();
     Order getOrderById(String id);
-    Order checkout(String userId,OrderCheckOutRequest orderCheckOutRequest);
+    OrderResponse checkout(String userId, OrderCheckOutRequest orderCheckOutRequest);
     List<Order> getOrdersByUserId(String userId);
 }
