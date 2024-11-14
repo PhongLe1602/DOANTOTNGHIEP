@@ -101,6 +101,11 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleRepository.saveAll(schedules);
     }
 
+    @Override
+    public List<Schedule> getAllSchedules() {
+        return scheduleRepository.findAll();
+    }
+
     private List<LocalDate> getRepeatDates(LocalDate startDate, LocalDate endDate, List<Integer> daysOfWeek) {
         List<LocalDate> repeatDates = new ArrayList<>();
         LocalDate currentDate = startDate;

@@ -32,7 +32,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
+    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**","/api/roles/**","/api/permissions/**","/api/user-role/**","/api/role-permission/**"};
 
     private final  UserService userService;
 

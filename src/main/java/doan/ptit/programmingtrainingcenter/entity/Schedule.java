@@ -24,7 +24,6 @@ public class Schedule {
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
-    @JsonBackReference
     Course course;
 
     @Enumerated(EnumType.STRING)

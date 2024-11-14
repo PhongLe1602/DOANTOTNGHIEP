@@ -24,6 +24,10 @@ public class ScheduleController {
     Schedule createSchedule(@RequestBody ScheduleRequest scheduleRequest) {
         return scheduleService.createSchedule(scheduleRequest);
     }
+    @GetMapping
+    List<Schedule> getSchedules() {
+        return scheduleService.getAllSchedules();
+    }
     @GetMapping("/{id}")
     ScheduleResponse getSchedule(@PathVariable String id) {
         return scheduleService.getSchedule(id);
