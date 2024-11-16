@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
+import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.entity.User;
 
 import java.util.List;
@@ -17,6 +18,8 @@ public interface UserService {
     void updateUserAvatar(String id, String avatarUrl);
     List<User> getAllStudents();
     List<User> getAllTeachers();
+    void addRole(UserRoleRequest userRoleRequest);
+    void deleteRole(String userId,String roleId);
     
 
 

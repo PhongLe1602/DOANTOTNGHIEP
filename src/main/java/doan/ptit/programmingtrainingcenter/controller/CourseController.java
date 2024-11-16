@@ -6,6 +6,7 @@ import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class CourseController {
     List<Course> getCourseList(){
         return courseService.getCourse();
     }
-    @PostMapping
-    Course createCourse(@RequestBody CoursesRequest coursesRequest){
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    Course createCourse(@ModelAttribute CoursesRequest coursesRequest){
         return courseService.addCourse(coursesRequest);
     }
 

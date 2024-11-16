@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.controller;
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.RolePermissionRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.RoleRequest;
 import doan.ptit.programmingtrainingcenter.entity.Role;
 import doan.ptit.programmingtrainingcenter.service.RoleService;
@@ -28,6 +29,17 @@ public class RoleController {
     @PostMapping
     Role addRole(@RequestBody RoleRequest roleRequest) {
         return roleService.addRole(roleRequest);
+    }
+
+    @PostMapping("/permission")
+    Boolean addRolePermission(@RequestBody RolePermissionRequest rolePermissionRequest) {
+        roleService.addPermission(rolePermissionRequest);
+        return true;
+    }
+    @DeleteMapping("/role/{roleId}/permission/{permissionId}")
+    Boolean deleteRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
+        roleService.deletePermission(roleId, permissionId);
+        return true;
     }
 
 }

@@ -1,26 +1,25 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.CategoryResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.SectionResponse;
-import doan.ptit.programmingtrainingcenter.entity.Course;
-import doan.ptit.programmingtrainingcenter.entity.Enrollment;
-import doan.ptit.programmingtrainingcenter.entity.Section;
+import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
 import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
-import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
-import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
-import doan.ptit.programmingtrainingcenter.repository.SectionRepository;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
 
 @Service
 public class CourseServiceImpl implements CourseService {
@@ -40,10 +39,19 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private EnrollmentRepository enrollmentRepository;
 
+    @Autowired
+    private CategoryRepository courseCategoryRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
+
     @Override
     public CoursesResponse getCourseById(String id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Courses Not Found"));
-        List<Section>  sectionList =  sectionRepository.findByCourseId(id);
+        List<Section> sectionList = sectionRepository.findByCourseId(id);
         CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(course.getCategory());
         List<SectionResponse> sectionResponseList = sectionMapper.toDtoList(sectionList);
         return CoursesResponse.builder()
@@ -69,18 +77,41 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public Course addCourse(CoursesRequest coursesRequest) {
-        Course course = new Course();
-        course.setTitle(coursesRequest.getTitle());
-        course.setDuration(coursesRequest.getDuration());
-        course.setDescription(coursesRequest.getDescription());
-        course.setPrice(BigDecimal.valueOf(coursesRequest.getPrice()));
-        course.setLevel(Course.Level.valueOf(coursesRequest.getLevel()));
-        course.setTitle(coursesRequest.getTitle());
-        course.setCreatedAt(new Date());
-        course.setUpdatedAt(new Date());
+        // Tìm category
+        Category category = courseCategoryRepository.findById(coursesRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category Not Found"));
+
+        // Tìm danh sách giảng viên dựa trên instructorIds
+        List<User> instructors = userRepository.findAllById(coursesRequest.getInstructorIds());
+
+        // Khởi tạo Course
+        Course course = Course.builder()
+                .title(coursesRequest.getTitle())
+                .duration(coursesRequest.getDuration())
+                .description(coursesRequest.getDescription())
+                .price(BigDecimal.valueOf(coursesRequest.getPrice()))
+                .level(Course.Level.valueOf(coursesRequest.getLevel()))
+                .category(category)
+                .instructors(instructors) // Gắn danh sách giảng viên
+                .createdAt(new Date())
+                .updatedAt(new Date())
+                .build();
+
+        // Upload thumbnail
+        if (coursesRequest.getThumbnail() != null && !coursesRequest.getThumbnail().isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(coursesRequest.getThumbnail().getBytes(), ObjectUtils.emptyMap());
+                course.setThumbnail((String) uploadResult.get("url"));
+            } catch (Exception e) {
+                throw new RuntimeException("Error uploading image to Cloudinary", e);
+            }
+        }
+
         return courseRepository.save(course);
     }
+
 
     @Override
     public List<Course> getCoursesByUser(String userId) {
@@ -95,16 +126,28 @@ public class CourseServiceImpl implements CourseService {
         Course existingCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
 
-        // Cập nhật thông tin từ request
+        // Update fields from request
         existingCourse.setTitle(coursesRequest.getTitle());
         existingCourse.setDescription(coursesRequest.getDescription());
         existingCourse.setDuration(coursesRequest.getDuration());
         existingCourse.setPrice(BigDecimal.valueOf(coursesRequest.getPrice()));
         existingCourse.setLevel(Course.Level.valueOf(coursesRequest.getLevel()));
-        existingCourse.setThumbnail(coursesRequest.getThumbnail());
         existingCourse.setUpdatedAt(new Date());
 
-        // Lưu vào database
+        // Upload new thumbnail if provided
+        if (coursesRequest.getThumbnail() != null && !coursesRequest.getThumbnail().isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(coursesRequest.getThumbnail().getBytes(), ObjectUtils.emptyMap());
+                existingCourse.setThumbnail((String) uploadResult.get("url")); // Update thumbnail URL
+            } catch (Exception e) {
+                throw new RuntimeException("Error uploading image to Cloudinary", e);
+            }
+        }
+
+        if (coursesRequest.getInstructorIds() != null && !coursesRequest.getInstructorIds().isEmpty()) {
+            List<User> instructors = userRepository.findAllById(coursesRequest.getInstructorIds());
+            existingCourse.setInstructors(instructors); // Gán giảng viên cho khóa học
+        }
         return courseRepository.save(existingCourse);
     }
 
@@ -112,9 +155,6 @@ public class CourseServiceImpl implements CourseService {
     public Boolean deleteCourse(String courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new RuntimeException("Courses Not Found"));
         courseRepository.delete(course);
-
         return true;
     }
-
-
 }

@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
+import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CloudinaryService;
@@ -67,6 +68,17 @@ public class UserController {
     @GetMapping("/instructors")
     public List<User> getAllTeachers() {
         return userService.getAllTeachers();
+    }
+
+    @PostMapping("/role")
+    public boolean addRole(@RequestBody UserRoleRequest userRoleRequest) {
+        userService.addRole(userRoleRequest);
+        return true;
+    }
+    @DeleteMapping("/{userId}/role/{roleId}")
+    public boolean deleteRole(@PathVariable String userId, @PathVariable String roleId) {
+        userService.deleteRole(userId,roleId);
+        return true;
     }
 
 }
