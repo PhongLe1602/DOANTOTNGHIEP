@@ -1,8 +1,10 @@
 package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
+import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.User;
 
 import java.util.List;
@@ -22,6 +24,10 @@ public interface UserService {
     void addRole(UserRoleRequest userRoleRequest);
     void deleteRole(String userId,String roleId);
     Boolean blockUser(BlockUserRequest blockUserRequest);
+
+    ProfileUserResponse getProfile(String userId);
+
+    ProfileUserResponse updateProfile(String userid , ProfileUserRequest profileUserRequest);
     
 
 

@@ -3,26 +3,22 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
+import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
-import doan.ptit.programmingtrainingcenter.dto.response.AuthResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.Role;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.mapper.UserMapper;
 import doan.ptit.programmingtrainingcenter.repository.RoleRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.UserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -176,6 +172,26 @@ public class UserServiceImpl implements UserService {
         user.setIsLocked(blockUserRequest.isBlocked());
         userRepository.save(user);
         return true;
+    }
+
+    @Override
+    public ProfileUserResponse getProfile(String userId) {
+        User user =  userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userMapper.toProfileUserResponse(user);
+
+    }
+
+    @Override
+    public ProfileUserResponse updateProfile(String userId , ProfileUserRequest profileUserRequest) {
+        User user =  userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userMapper.updateProfileUser(user,profileUserRequest);
+
+        userRepository.save(user);
+
+        return userMapper.toProfileUserResponse(user);
     }
 
 

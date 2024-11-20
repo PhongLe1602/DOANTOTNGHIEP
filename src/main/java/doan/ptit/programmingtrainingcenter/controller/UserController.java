@@ -2,8 +2,10 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
+import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CloudinaryService;
@@ -85,6 +87,17 @@ public class UserController {
     @PostMapping("/block")
     public boolean blockUser(@RequestBody BlockUserRequest blockUserRequest) {
         return userService.blockUser(blockUserRequest);
+    }
+
+    @GetMapping("/profile")
+    public ProfileUserResponse getUserProfile() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.getProfile(currentUser.getId());
+    }
+    @PutMapping("/profile")
+    public ProfileUserResponse updateUserProfile(@RequestBody ProfileUserRequest profileUserRequest) {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userService.updateProfile(currentUser.getId(), profileUserRequest);
     }
 
 }
