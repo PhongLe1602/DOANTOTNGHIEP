@@ -19,4 +19,6 @@ public interface AuthenticationService {
 
     AuthResponse changePassword(ChangePasswordRequest changePasswordRequest);
 
+    AuthResponse active(String token);
+
 }

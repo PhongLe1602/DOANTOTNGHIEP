@@ -37,7 +37,7 @@ public class CourseController {
         return courseService.getCoursesByUser(userId);
     }
     @PutMapping("/{id}")
-    public Course updateCourse(@PathVariable String id, @RequestBody CoursesRequest request) {
+    public Course updateCourse(@PathVariable String id, @ModelAttribute CoursesRequest request) {
         return courseService.updateCourse(id, request);
     }
     @DeleteMapping("/{id}")

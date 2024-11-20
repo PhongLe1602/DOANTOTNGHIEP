@@ -58,6 +58,17 @@ public class JwtServiceImpl implements JwtService {
         return extractAllClaims(token).get("userId", String.class);
     }
 
+    @Override
+    public String generateActivationToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .signWith(SignatureAlgorithm.HS512,getSigningKey())
+                .compact();
+    }
+
+
     public Date getExpirationDateFromToken(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -105,6 +116,7 @@ public class JwtServiceImpl implements JwtService {
                 .signWith(SignatureAlgorithm.HS512,getSigningKey())
                 .compact();
     }
+
 
 
 

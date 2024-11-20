@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.service;
 
+import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.entity.User;
@@ -20,6 +21,7 @@ public interface UserService {
     List<User> getAllTeachers();
     void addRole(UserRoleRequest userRoleRequest);
     void deleteRole(String userId,String roleId);
+    Boolean blockUser(BlockUserRequest blockUserRequest);
     
 
 

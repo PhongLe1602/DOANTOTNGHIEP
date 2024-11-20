@@ -50,4 +50,9 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/activate")
+    public ResponseEntity<AuthResponse> activate(@RequestParam String token) {
+        AuthResponse response = authenticationService.active(token);
+        return ResponseEntity.ok(response);
+    }
 }

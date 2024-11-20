@@ -32,7 +32,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**","/api/roles/**","/api/permissions/**","/api/user-role/**","/api/role-permission/**"};
+    private final String [] PUBLIC_ENDPOINTS = {"/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
 
     private final  UserService userService;
 
@@ -48,10 +48,24 @@ public class SecurityConfig {
                 request.requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/auth/change-password").hasAuthority("ROLE_STUDENT")
-                        // Người dùng có quyền 'VIEW_USER' mới được xem thông tin người dùng
-                        .requestMatchers(HttpMethod.POST, "/api/users/**").hasAuthority("MANAGE_USERS")
-//                        .requestMatchers(HttpMethod.GET, "/api/courses/**").hasAuthority("MANAGE_COURSES")
-                        .requestMatchers(HttpMethod.GET, "/api/topics/**").hasAuthority("MANAGE_COURSES")
+                        // Phân quyền quản lý người dùng
+                        .requestMatchers("/api/users").hasAuthority("MANAGE_USERS")
+
+                        // Phân quyền quản lý khóa học
+                        .requestMatchers(HttpMethod.POST, "/api/courses/**").hasAuthority("MANAGE_COURSES")
+                        .requestMatchers(HttpMethod.POST, "/api/topics/**").hasAuthority("MANAGE_COURSES")
+
+                        // Phân quyền quản lý lộ trình
+                        .requestMatchers(HttpMethod.POST, "/api/sections/**").hasAuthority("MANAGE_SECTIONS")
+
+                        // Phân quyền quản lý bài học
+                        .requestMatchers(HttpMethod.POST, "/api/lessons/**").hasAuthority("MANAGE_LESSONS")
+
+                        // Phân quyền quản lý quyền và vai trò
+                        .requestMatchers(HttpMethod.POST, "/api/roles/**").hasAuthority("MANAGE_ROLES")
+                        .requestMatchers(HttpMethod.POST, "/api/permissions/**").hasAuthority("MANAGE_PERMISSIONS")
+
+
                         .anyRequest().authenticated())
                         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(provider()).addFilterBefore(preFilter, UsernamePasswordAuthenticationFilter.class)

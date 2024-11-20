@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.controller;
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.entity.User;
@@ -35,11 +36,11 @@ public class UserController {
         return userService.getUserById(id);
     }
     @PostMapping
-    User createUser(@RequestBody UserRequest userRequest) {
+    User createUser(@ModelAttribute UserRequest userRequest) {
         return userService.createUser(userRequest);
     }
     @PutMapping("/{id}")
-    User updateUser(@PathVariable String id, @RequestBody UserRequest userRequest) {
+    public User updateUser(@PathVariable String id, @ModelAttribute UserRequest userRequest) {
         return userService.updateUser(id, userRequest);
     }
     @DeleteMapping("/{id}")
@@ -79,6 +80,11 @@ public class UserController {
     public boolean deleteRole(@PathVariable String userId, @PathVariable String roleId) {
         userService.deleteRole(userId,roleId);
         return true;
+    }
+
+    @PostMapping("/block")
+    public boolean blockUser(@RequestBody BlockUserRequest blockUserRequest) {
+        return userService.blockUser(blockUserRequest);
     }
 
 }

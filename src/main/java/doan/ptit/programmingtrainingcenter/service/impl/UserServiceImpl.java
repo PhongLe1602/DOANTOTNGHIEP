@@ -1,5 +1,8 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.AuthResponse;
@@ -15,11 +18,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -37,6 +42,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private Cloudinary cloudinary;
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -46,28 +54,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(@RequestBody UserRequest userRequest) {
+    public User createUser( UserRequest userRequest) {
         if(userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email Already Exists");
         }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = userMapper.toUser(userRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setCreatedAt(new Date());
-        user.setUpdatedAt(new Date());
+        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
+                user.setProfilePicture((String) uploadResult.get("url")); // Cập nhật URL của profilePicture
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
+            }
+        }
         return userRepository.save(user);
     }
 
     @Override
     public User updateUser(String id , UserRequest userRequest) {
         User userEntity = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
-        userEntity.setEmail(userRequest.getEmail());
-        userEntity.setFullName(userRequest.getFullName());
-        userEntity.setPhoneNumber(String.valueOf(userRequest.getPhoneNumber()));
-        userEntity.setAddress(userRequest.getAddress());
-        userEntity.setBio(userRequest.getBio());
-        userEntity.setProfilePicture(userRequest.getProfilePicture());
-        userEntity.setEmail(userRequest.getEmail());
+        userMapper.updateUser(userEntity,userRequest);
+        userEntity.setIsEnabled(true);
+        userEntity.setIsLocked(false);
+
+        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
+                userEntity.setProfilePicture((String) uploadResult.get("url")); // Cập nhật URL của profilePicture
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
+            }
+        }
 
         return userRepository.save(userEntity);
 
@@ -149,6 +168,15 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    @Override
+    public Boolean blockUser(BlockUserRequest blockUserRequest) {
+        User user = userRepository.findById(blockUserRequest.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setIsLocked(blockUserRequest.isBlocked());
+        userRepository.save(user);
+        return true;
+    }
 
 
 }

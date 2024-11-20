@@ -16,6 +16,8 @@ import doan.ptit.programmingtrainingcenter.service.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +45,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String fondEndUrl;
 
     public TokenResponse authenticate(SignInRequest signInRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword()));
@@ -90,9 +95,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
-        String token = UUID.randomUUID().toString();
+        String token = jwtService.generateActivationToken(registerRequest.getEmail());
 
-        String activationLink = "http://localhost:8080/api/auth/activate?token=" + token;
+        String activationLink = fondEndUrl + "/activate-account?token=" + token;
 
         User user = new User();
         user.setFullName(registerRequest.getFullName());
@@ -100,6 +105,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPhoneNumber(registerRequest.getPhoneNumber());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setIsLocked(false);
+        user.setIsEnabled(false);
         userRepository.save(user);
         emailService.sendEmail(user.getEmail(),"Activate your account","Please click the following link to activate your account: " + activationLink);
         return AuthResponse.builder()
@@ -136,6 +143,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthResponse.builder()
                 .status("success")
                 .message("Mat khau da duoc cap nhat")
+                .timestamp(new Date())
+                .build();
+    }
+
+    @Override
+    public AuthResponse active(String token) {
+        if (jwtService.isTokenExpired(token)) {
+            throw new BadCredentialsException("Invalid token");
+        }
+        String email = jwtService.extractUsername(token);
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User Not Found"));
+        if (user.getIsEnabled()) {
+            throw new RuntimeException("Tài khoản đã được kích hoạt trước đó.");
+        }
+        user.setIsEnabled(true);
+        userRepository.save(user);
+        return AuthResponse.builder()
+                .status("success")
+                .message("Tai khoan cua ban da duoc kich hoat")
                 .timestamp(new Date())
                 .build();
     }

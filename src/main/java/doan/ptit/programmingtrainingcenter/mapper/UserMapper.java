@@ -13,11 +13,13 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "phoneNumber", expression = "java(String.valueOf(userRequest.getPhoneNumber()))")
+    @Mapping(target = "profilePicture", ignore = true)
     User toUser(UserRequest userRequest);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "profilePicture", ignore = true)
     void updateUser(@MappingTarget User user, UserRequest userRequest);
 }

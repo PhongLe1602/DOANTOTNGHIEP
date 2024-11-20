@@ -12,4 +12,5 @@ public interface JwtService {
     Boolean isTokenExpired(String token);
     String generateRefreshToken(UserDetails userDetails);
     String getUserIdFromToken(String token);
+    String generateActivationToken(String email);
 }

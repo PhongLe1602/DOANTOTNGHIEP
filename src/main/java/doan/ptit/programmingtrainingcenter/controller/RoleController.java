@@ -36,9 +36,14 @@ public class RoleController {
         roleService.addPermission(rolePermissionRequest);
         return true;
     }
-    @DeleteMapping("/role/{roleId}/permission/{permissionId}")
+    @DeleteMapping("/{roleId}/permission/{permissionId}")
     Boolean deleteRolePermission(@PathVariable String roleId, @PathVariable String permissionId) {
         roleService.deletePermission(roleId, permissionId);
+        return true;
+    }
+    @DeleteMapping("/{id}")
+    Boolean deleteRole(@PathVariable String id) {
+        roleService.deleteRole(id);
         return true;
     }
 

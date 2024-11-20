@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -24,13 +26,14 @@ public class UserRequest {
 
     String gender;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     Date birthDate;
 
     String phoneNumber;
 
     String address;
 
-    String profilePicture;
+    MultipartFile profilePicture;
 
     String bio;
 
