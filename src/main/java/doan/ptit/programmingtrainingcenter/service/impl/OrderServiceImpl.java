@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
 import doan.ptit.programmingtrainingcenter.configuration.VNPayConfig;
+import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutNowRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.OrderResponse;
@@ -113,6 +114,7 @@ public class OrderServiceImpl implements OrderService {
         // Lưu Order
         Order savedOrder = orderRepository.save(order);
 
+        paymentService.createPayment(savedOrder, savedOrder.getTotalAmount(), paymentMethod.getId());
         // Xóa giỏ hàng sau khi đã tạo Order
         cartRepository.delete(cart);
         if ("VNPAY".equalsIgnoreCase(paymentMethod.getCode())) {
@@ -133,6 +135,58 @@ public class OrderServiceImpl implements OrderService {
     public List<Order> getOrdersByUserId(String userId) {
         return orderRepository.findByUserId(userId);
     }
+
+    @Override
+    @Transactional
+    public OrderResponse checkoutNow(String userId, OrderCheckOutNowRequest orderCheckOutNowRequest) {
+        // Lấy thông tin người dùng
+        User user = getUser(userId);
+
+        // Lấy thông tin phương thức thanh toán
+        PaymentMethod paymentMethod = getPaymentMethod(orderCheckOutNowRequest.getPaymentMethodId());
+
+        // Lấy thông tin khóa học
+        Course course = courseRepository.findById(orderCheckOutNowRequest.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Course Not Found"));
+
+        // Tạo đối tượng Order
+        Order order = Order.builder()
+                .user(user)
+                .totalAmount(course.getPrice())
+                .status(Order.OrderStatus.PENDING)
+                .paymentMethod(paymentMethod)
+                .paymentStatus(Order.PaymentStatus.PENDING)
+                .build();
+
+        // Tạo OrderItem từ thông tin khóa học
+        OrderItem orderItem = OrderItem.builder()
+                .order(order)
+                .course(course)
+                .price(course.getPrice())
+                .build();
+
+        // Gán OrderItem vào Order
+        order.setOrderItems(Collections.singletonList(orderItem));
+
+        // Lưu Order vào cơ sở dữ liệu
+        Order savedOrder = orderRepository.save(order);
+        createEnrollments(user, Collections.singletonList(orderItem));
+        paymentService.createPayment(savedOrder, savedOrder.getTotalAmount(), paymentMethod.getId());
+        // Xử lý thanh toán nếu phương thức thanh toán là VNPay
+        if ("VNPAY".equalsIgnoreCase(paymentMethod.getCode())) {
+            String paymentUrl = generateVnpayPaymentUrl(savedOrder, request);
+            return OrderResponse.builder()
+                    .order(savedOrder)
+                    .paymentUrl(paymentUrl)
+                    .build();
+        }
+
+        // Nếu không sử dụng VNPay, trả về thông tin Order
+        return OrderResponse.builder()
+                .order(savedOrder)
+                .build();
+    }
+
 
     // Helper method to get User entity
     private User getUser(String userId) {
@@ -189,8 +243,9 @@ public class OrderServiceImpl implements OrderService {
         String vnpVersion = "2.1.0";
         String command = "pay";
         String orderType = "other";  // Sửa chính tả "orther" thành "other"
-        String vnpTxnRef = VNPayConfig.getRandomNumber(8);  // Mã giao dịch unique
-        String vnpIpAddr = VNPayConfig.getIpAddress(request);  // Lấy IP khách hàng từ request
+//        String vnpTxnRef = VNPayConfig.getRandomNumber(8);
+        String vnpTxnRef = order.getId();
+        String vnpIpAddr = VNPayConfig.getIpAddress(request);
         String locale = "vn";
         String currCode = "VND";
 

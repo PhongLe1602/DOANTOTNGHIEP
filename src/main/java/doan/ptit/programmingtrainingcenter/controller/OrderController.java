@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.controller;
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutNowRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.OrderResponse;
@@ -47,6 +48,12 @@ public class OrderController {
         String userId = jwtService.getUserIdFromToken(token);
         System.out.println(userId);
         return orderService.checkout(userId,orderCheckOutRequest);
+    }
+    @PostMapping("/check-now")
+    OrderResponse checkoutNow(@RequestBody OrderCheckOutNowRequest orderCheckOutNowRequest, HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        String userId = jwtService.getUserIdFromToken(token);
+        return orderService.checkoutNow(userId,orderCheckOutNowRequest);
     }
 
 }
