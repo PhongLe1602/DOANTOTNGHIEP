@@ -128,8 +128,10 @@ public class PaymentServiceImpl implements PaymentService {
     private void updateOrderStatus(Order order, Payment.PaymentStatus paymentStatus) {
         if (paymentStatus == Payment.PaymentStatus.COMPLETED) {
             order.setStatus(Order.OrderStatus.COMPLETED); // Cập nhật trạng thái đơn hàng thành COMPLETED
+            order.setPaymentStatus(Order.PaymentStatus.COMPLETED);
         } else if (paymentStatus == Payment.PaymentStatus.FAILED) {
             order.setStatus(Order.OrderStatus.FAILED); // Cập nhật trạng thái đơn hàng thành FAILED
+            order.setPaymentStatus(Order.PaymentStatus.FAILED);
         }
 
         // Lưu lại đơn hàng đã cập nhật

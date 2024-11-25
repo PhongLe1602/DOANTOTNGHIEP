@@ -10,8 +10,8 @@ import java.util.Date;
 @Data
 public class ScheduleRequest {
 
-    @NotNull(message = "Course ID is required")
-    String courseId;
+    @NotNull(message = "CourseClass ID is required")
+    String courseClassId;
 
     @NotNull(message = "Session type is required")
     SessionType sessionType;

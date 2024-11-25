@@ -23,8 +23,8 @@ public class Schedule {
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    Course course;
+    @JoinColumn(name = "course_class_id", nullable = false)
+    CourseClass courseClass;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)

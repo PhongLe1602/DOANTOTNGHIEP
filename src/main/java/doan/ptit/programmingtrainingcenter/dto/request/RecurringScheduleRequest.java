@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class RecurringScheduleRequest {
 
-    private String courseId;
+    private String courseClassId;
     private String instructorId;
     private String description;
     private int duration; // thời lượng buổi học (phút)

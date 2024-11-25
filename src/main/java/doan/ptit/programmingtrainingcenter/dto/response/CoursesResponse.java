@@ -5,8 +5,10 @@ import doan.ptit.programmingtrainingcenter.entity.Category;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.Section;
 import doan.ptit.programmingtrainingcenter.entity.User;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -14,6 +16,7 @@ import java.util.List;
 
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CoursesResponse {
 
     String id;

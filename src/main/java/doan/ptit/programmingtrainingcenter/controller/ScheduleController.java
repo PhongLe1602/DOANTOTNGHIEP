@@ -32,9 +32,9 @@ public class ScheduleController {
     ScheduleResponse getSchedule(@PathVariable String id) {
         return scheduleService.getSchedule(id);
     }
-    @GetMapping("/courses/{courseId}")
-    List<ScheduleResponse> getScheduleByCourseId(@PathVariable String courseId) {
-        return scheduleService.getSchedulesByCourse(courseId);
+    @GetMapping("/courses/{courseClassId}")
+    List<ScheduleResponse> getScheduleByCourseId(@PathVariable String courseClassId) {
+        return scheduleService.getSchedulesByCourse(courseClassId);
     }
     @PostMapping("/recurring")
     public List<Schedule> createRecurringSchedules(@RequestBody RecurringScheduleRequest recurringScheduleRequest) {

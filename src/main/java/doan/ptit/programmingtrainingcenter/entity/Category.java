@@ -24,6 +24,10 @@ public class Category {
     @Column(nullable = false, length = 255)
     String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10)
+    CategoryType type;
+
     @Column(columnDefinition = "TEXT")
     String description;
 
@@ -34,4 +38,9 @@ public class Category {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     Date updatedAt;
+    public enum CategoryType {
+        ONLINE,
+        OFFLINE,
+        VIDEO
+    }
 }

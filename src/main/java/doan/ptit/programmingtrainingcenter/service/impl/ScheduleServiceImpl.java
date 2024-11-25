@@ -6,9 +6,11 @@ import doan.ptit.programmingtrainingcenter.dto.request.RecurringScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.Schedule;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.mapper.ScheduleMapper;
+import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
 import doan.ptit.programmingtrainingcenter.repository.ScheduleRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
@@ -40,13 +42,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private ScheduleMapper scheduleMapper;
 
+    @Autowired
+    private CourseClassRepository courseClassRepository;
+
     @Override
     public Schedule createSchedule(ScheduleRequest scheduleRequest) {
-        Course course = courseRepository.findById(scheduleRequest.getCourseId()).orElseThrow(() -> new RuntimeException("Course Not Found"));
+        CourseClass courseClass = courseClassRepository.findById(scheduleRequest.getCourseClassId()).
+                orElseThrow(() -> new RuntimeException("Course Class Not Found"));
 
         User user = userRepository.findById(scheduleRequest.getInstructorId()).orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        Schedule schedule = scheduleMapper.toEntity(scheduleRequest,course,user);
+        Schedule schedule = scheduleMapper.toEntity(scheduleRequest,courseClass,user);
 
         return scheduleRepository.save(schedule);
 
@@ -60,16 +66,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
-    public List<ScheduleResponse> getSchedulesByCourse(String courseId) {
-        List<Schedule> schedules = scheduleRepository.findByCourseId(courseId);
+    public List<ScheduleResponse> getSchedulesByCourse(String courseClassId) {
+        List<Schedule> schedules = scheduleRepository.findByCourseClassId(courseClassId);
 
         return scheduleMapper.toResponseList(schedules);
     }
 
     @Override
     public List<Schedule> createRecurringSchedules(RecurringScheduleRequest request) {
-        Course course = courseRepository.findById(request.getCourseId())
-                .orElseThrow(() -> new RuntimeException("Course Not Found"));
+        CourseClass courseClass = courseClassRepository.findById(request.getCourseClassId()).
+                orElseThrow(() -> new RuntimeException("Course Class Not Found"));
 
         User instructor = userRepository.findById(request.getInstructorId())
                 .orElseThrow(() -> new RuntimeException("Instructor Not Found"));
@@ -83,7 +89,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         List<Schedule> schedules = new ArrayList<>();
         for (LocalDate date : repeatDates) {
             Schedule schedule = Schedule.builder()
-                    .course(course)
+                    .courseClass(courseClass)
                     .sessionType(request.getSessionType())
                     .sessionDate(convertToDate(date)) // Ngày của buổi học
                     .startTime(convertToDateTime(date, request.getStartTime())) // Thời gian bắt đầu

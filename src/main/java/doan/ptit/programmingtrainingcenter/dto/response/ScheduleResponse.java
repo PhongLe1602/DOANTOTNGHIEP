@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.dto.response;
 
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.Schedule.SessionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +17,7 @@ import java.util.Date;
 public class ScheduleResponse {
 
     private String id;
-    private Course course;
+    private CourseClass courseClass;
     private SessionType sessionType;
     private Date sessionDate;
     private Date startTime;

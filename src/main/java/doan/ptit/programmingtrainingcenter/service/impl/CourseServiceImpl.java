@@ -11,7 +11,14 @@ import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
 import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
+import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
+import doan.ptit.programmingtrainingcenter.specification.SpecificationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,8 +79,21 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> getCourse() {
-        return courseRepository.findAll();
+    public Page<Course> getCourses(int page, int size, String sortBy,String sortDirection ,List<SearchCriteria> filters) {
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        SpecificationBuilder<Course> builder = new SpecificationBuilder<>();
+
+        for (SearchCriteria criteria : filters) {
+            builder.with(criteria.getKey(), criteria.getOperation(), criteria.getValue());
+        }
+
+        Specification<Course> specification = builder.build();
+
+        return courseRepository.findAll(specification,pageable);
     }
 
     @Override
@@ -102,7 +122,13 @@ public class CourseServiceImpl implements CourseService {
         // Upload thumbnail
         if (coursesRequest.getThumbnail() != null && !coursesRequest.getThumbnail().isEmpty()) {
             try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(coursesRequest.getThumbnail().getBytes(), ObjectUtils.emptyMap());
+                String folderName = "programming-training-center-project/courses";
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        coursesRequest.getThumbnail().getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", folderName // Thư mục đích trên Cloudinary
+                        )
+                );
                 course.setThumbnail((String) uploadResult.get("url"));
             } catch (Exception e) {
                 throw new RuntimeException("Error uploading image to Cloudinary", e);
@@ -137,7 +163,13 @@ public class CourseServiceImpl implements CourseService {
         // Upload new thumbnail if provided
         if (coursesRequest.getThumbnail() != null && !coursesRequest.getThumbnail().isEmpty()) {
             try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(coursesRequest.getThumbnail().getBytes(), ObjectUtils.emptyMap());
+                String folderName = "programming-training-center-project/courses";
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        coursesRequest.getThumbnail().getBytes(),
+                        ObjectUtils.asMap(
+                                "folder", folderName // Thư mục đích trên Cloudinary
+                        )
+                );
                 existingCourse.setThumbnail((String) uploadResult.get("url")); // Update thumbnail URL
             } catch (Exception e) {
                 throw new RuntimeException("Error uploading image to Cloudinary", e);
@@ -157,4 +189,5 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.delete(course);
         return true;
     }
+
 }

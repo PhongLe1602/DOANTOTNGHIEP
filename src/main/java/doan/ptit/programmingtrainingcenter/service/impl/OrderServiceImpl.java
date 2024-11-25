@@ -256,7 +256,7 @@ public class OrderServiceImpl implements OrderService {
         vnpParams.put("vnp_TmnCode", VNPayConfig.getVnpTmnCode());
 
         BigDecimal totalAmount = order.getTotalAmount().setScale(0, RoundingMode.DOWN); // Loại bỏ phần thập phân
-        vnpParams.put("vnp_Amount", totalAmount.multiply(new BigDecimal(10000)).toString());
+        vnpParams.put("vnp_Amount", totalAmount.toString());
         vnpParams.put("vnp_CurrCode", currCode);
         vnpParams.put("vnp_BankCode", "NCB");
         vnpParams.put("vnp_TxnRef", vnpTxnRef);
