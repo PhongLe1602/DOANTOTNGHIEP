@@ -112,6 +112,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleRepository.findAll();
     }
 
+    @Override
+    public List<ScheduleResponse> getSchedulesByUser(String userId) {
+        List<Schedule> schedules = scheduleRepository.findSchedulesByUserId(userId);
+        return scheduleMapper.toResponseList(schedules);
+    }
+
+
     private List<LocalDate> getRepeatDates(LocalDate startDate, LocalDate endDate, List<Integer> daysOfWeek) {
         List<LocalDate> repeatDates = new ArrayList<>();
         LocalDate currentDate = startDate;

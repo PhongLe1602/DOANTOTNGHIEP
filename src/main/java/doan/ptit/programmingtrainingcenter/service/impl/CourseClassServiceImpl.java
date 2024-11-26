@@ -1,10 +1,14 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
 
+import doan.ptit.programmingtrainingcenter.dto.request.ClassStudentRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.CourseClassRequest;
+import doan.ptit.programmingtrainingcenter.entity.ClassStudent;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.mapper.CourseClassMapper;
+import doan.ptit.programmingtrainingcenter.repository.ClassStudentRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
@@ -24,6 +28,8 @@ public class CourseClassServiceImpl implements CourseClassService {
 
     @Autowired
     private CourseClassMapper courseClassMapper;
+
+
 
 
     @Override
@@ -66,4 +72,7 @@ public class CourseClassServiceImpl implements CourseClassService {
     public List<CourseClass> getClassByCourseId(String courseId) {
         return classRepository.findAllByCourseId(courseId);
     }
+
+
+
 }

@@ -44,7 +44,7 @@ public class CourseClass {
     int maxStudents;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15, columnDefinition = "ENUM('active', 'completed', 'cancelled') DEFAULT 'active'")
+    @Column(nullable = false, length = 15, columnDefinition = "ENUM('ACTIVE', 'COMPLETED', 'CANCELLED') DEFAULT 'ACTIVE'")
     Status status;
 
     @CreationTimestamp

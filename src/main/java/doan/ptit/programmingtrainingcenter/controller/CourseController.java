@@ -5,11 +5,13 @@ import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -54,7 +56,7 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/enrollments")
-    public List<Course> getCoursesByUser(@PathVariable String userId) {
+    public List<Course> getCoursesByUserId(@PathVariable String userId) {
         return courseService.getCoursesByUser(userId);
     }
     @PutMapping("/{id}")
@@ -64,5 +66,11 @@ public class CourseController {
     @DeleteMapping("/{id}")
     public boolean deleteCourse(@PathVariable String id) {
         return courseService.deleteCourse(id);
+    }
+    @GetMapping("/user")
+    public List<Course> getCoursesByUser() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return courseService.getCoursesByUser(currentUser.getId());
     }
 }
