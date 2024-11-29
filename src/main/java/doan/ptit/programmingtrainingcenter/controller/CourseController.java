@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.ApiResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
@@ -25,7 +26,7 @@ public class CourseController {
 
 
     @GetMapping
-    public PagedResponse<Course> getCourses(
+    public ApiResponse<PagedResponse<Course>>  getCourses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title") String sortBy,
@@ -41,9 +42,8 @@ public class CourseController {
             filters.add(new SearchCriteria(key, operation, value));
         }
         Page<Course> coursePage = courseService.getCourses(page, size, sortBy,sortDirection, filters);
-        List<Course> courseResponses = coursePage.getContent().stream()
-                .toList();
-        return new PagedResponse<>(courseResponses,coursePage);
+        PagedResponse<Course> response = new PagedResponse<>(coursePage);
+        return ApiResponse.success("Courses retrieved successfully", response);
     }
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     Course createCourse(@ModelAttribute CoursesRequest coursesRequest){
@@ -51,8 +51,9 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    CoursesResponse getCourseById(@PathVariable String id){
-        return courseService.getCourseById(id);
+    ApiResponse<CoursesResponse> getCourseById(@PathVariable String id){
+        CoursesResponse response = courseService.getCourseById(id);
+        return ApiResponse.success("Course retrieved successfully", response);
     }
 
     @GetMapping("/user/{userId}/enrollments")
@@ -72,5 +73,11 @@ public class CourseController {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.
                 getContext().getAuthentication().getPrincipal();
         return courseService.getCoursesByUser(currentUser.getId());
+    }
+    @GetMapping("/instructor")
+    public List<Course> getCoursesByInstructor() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return courseService.getCourseByInstructor(currentUser.getId());
     }
 }

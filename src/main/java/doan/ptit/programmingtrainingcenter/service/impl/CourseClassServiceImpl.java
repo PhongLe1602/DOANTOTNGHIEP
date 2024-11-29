@@ -73,6 +73,10 @@ public class CourseClassServiceImpl implements CourseClassService {
         return classRepository.findAllByCourseId(courseId);
     }
 
+    @Override
+    public List<User> getStudentsByClassId(String classId) {
+        return classRepository.findUsersByClassId(classId);
+    }
 
 
 }

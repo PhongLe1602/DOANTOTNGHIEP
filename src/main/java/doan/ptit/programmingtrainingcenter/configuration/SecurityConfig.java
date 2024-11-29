@@ -32,7 +32,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String [] PUBLIC_ENDPOINTS = {"/api/classes/**","/api/review/**","/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
+    private final String [] PUBLIC_ENDPOINTS = {"/api/attendance-session/**","/api/orders/**","/api/attendances/**","/api/classes/**","/api/review/**","/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
 
     private final  UserService userService;
 
@@ -65,6 +65,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/roles/**").hasAuthority("MANAGE_ROLES")
                         .requestMatchers(HttpMethod.POST, "/api/permissions/**").hasAuthority("MANAGE_PERMISSIONS")
 
+                        //Phân quyền quản lý đơn hàng
+                        .requestMatchers(HttpMethod.POST, "/api/orders/**").hasAuthority("MANAGE_ORDERS")
+                        .requestMatchers(HttpMethod.GET, "/api/orders").hasAuthority("MANAGE_ORDERS")
 
                         .anyRequest().authenticated())
                         .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))

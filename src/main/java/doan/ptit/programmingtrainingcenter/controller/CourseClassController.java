@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 import doan.ptit.programmingtrainingcenter.dto.request.CourseClassRequest;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
+import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,11 @@ public class CourseClassController {
     @GetMapping("/course/{courseId}")
     public List<CourseClass> getClassByCourseId(@PathVariable String courseId) {
         return courseClassService.getClassByCourseId(courseId);
+    }
+
+    @GetMapping("{classId}/students")
+    public List<User> getStudentOfClass(@PathVariable String classId) {
+        return courseClassService.getStudentsByClassId(classId);
     }
 
 }

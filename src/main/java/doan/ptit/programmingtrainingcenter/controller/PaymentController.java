@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -15,6 +16,12 @@ import java.util.Map;
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;
+
+
+    @GetMapping
+    public List<Payment> getPayments() {
+        return paymentService.getAllPayments();
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Payment> getPayment(@PathVariable String id) {

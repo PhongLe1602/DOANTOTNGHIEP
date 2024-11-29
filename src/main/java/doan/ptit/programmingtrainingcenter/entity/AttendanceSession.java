@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,38 +9,37 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.util.Date;
 
 @Entity
-@Table(name = "attendance")
+@Table(name = "attendance_session")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Attendance {
+public class AttendanceSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     @ManyToOne
-    @JoinColumn(name = "session_id", nullable = false)
-    AttendanceSession session;
+    @JoinColumn(name = "class_id", nullable = false)
+    CourseClass courseClass;
 
     @ManyToOne
-    @JoinColumn(name = "student_id", nullable = false)
-    User student;
+    @JoinColumn(name = "created_by", nullable = false)
+    User instructor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15)
-    Status status;
-
-    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
-    Date attendanceDate;
+    Date createdAt;
 
-    public enum Status {
-        PRESENT,
-        ABSENT,
-        LATE
-    }
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    Date expiryTime;
+
+    @Column(nullable = true)
+    String qrContent; // URL hoặc mã để tạo QR
+
+
 }

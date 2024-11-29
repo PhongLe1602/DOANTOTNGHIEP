@@ -82,6 +82,11 @@ public class PaymentServiceImpl implements PaymentService {
         return isSuccess;
     }
 
+    @Override
+    public List<Payment> getAllPayments() {
+        return paymentRepository.findAll();
+    }
+
 
     public Payment updatePaymentStatus(String orderId, Payment.PaymentStatus newStatus) {
         Payment payment = paymentRepository.findByOrderId(orderId);

@@ -190,4 +190,9 @@ public class CourseServiceImpl implements CourseService {
         return true;
     }
 
+    @Override
+    public List<Course> getCourseByInstructor(String instructorId) {
+        return courseRepository.findCoursesByInstructorId(instructorId);
+    }
+
 }

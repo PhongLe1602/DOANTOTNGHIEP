@@ -15,8 +15,8 @@ public class PagedResponse<T> {
     private int totalPages;
     private boolean last;
 
-    public PagedResponse(List<T> content, Page<?> page) {
-        this.content = content;
+    public PagedResponse(Page<T> page) {
+        this.content = page.getContent();
         this.page = page.getNumber();
         this.size = page.getSize();
         this.totalElements = page.getTotalElements();
