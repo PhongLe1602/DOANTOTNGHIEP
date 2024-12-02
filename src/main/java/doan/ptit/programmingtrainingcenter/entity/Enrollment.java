@@ -53,6 +53,7 @@ public class Enrollment {
         ACTIVE,
         COMPLETED,
         CANCELED,
-        PENDING
+        PENDING,
+        STUDYING
     }
 }

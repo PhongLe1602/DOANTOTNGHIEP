@@ -80,4 +80,9 @@ public class CourseController {
                 getContext().getAuthentication().getPrincipal();
         return courseService.getCourseByInstructor(currentUser.getId());
     }
+    @GetMapping("/search")
+    public List<Course> searchCourses(@RequestParam String q) {
+        return courseService.searchCourses(q);
+    }
+
 }

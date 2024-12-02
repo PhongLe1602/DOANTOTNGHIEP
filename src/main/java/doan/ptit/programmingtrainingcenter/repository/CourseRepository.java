@@ -17,4 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, String> , JpaSpe
             nativeQuery = true)
     List<Course> findCoursesByInstructorId(@Param("instructorId") String instructorId);
 
+
+    List<Course> findByTitleContainingOrDescriptionContaining(String title, String description);
+
 }

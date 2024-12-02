@@ -195,4 +195,9 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findCoursesByInstructorId(instructorId);
     }
 
+    @Override
+    public List<Course> searchCourses(String query) {
+        return courseRepository.findByTitleContainingOrDescriptionContaining(query, query);
+    }
+
 }

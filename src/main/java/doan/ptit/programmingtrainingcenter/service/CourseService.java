@@ -19,5 +19,6 @@ public interface CourseService {
     Course updateCourse(String courseId, CoursesRequest coursesRequest);
     Boolean deleteCourse(String courseId);
     List<Course> getCourseByInstructor(String instructorId);
+    List<Course> searchCourses(String query);
 
 }
