@@ -3,9 +3,11 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import doan.ptit.programmingtrainingcenter.dto.request.CourseReviewRequest;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.CourseReview;
+import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseReviewRepository;
+import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class CourseReviewServiceImpl implements CourseReviewService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
 
     @Override
     public CourseReview getReviewById(String id) {
@@ -43,11 +48,19 @@ public class CourseReviewServiceImpl implements CourseReviewService {
     }
 
     @Override
-    public CourseReview createReview(CourseReviewRequest courseReviewRequest) {
+    public CourseReview createReview(String userId ,CourseReviewRequest courseReviewRequest) {
         Course course = courseRepository.findById(courseReviewRequest.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course Not Found"));
-        User user = userRepository.findById(courseReviewRequest.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
+
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId());
+        if (enrollment == null) {
+            throw new RuntimeException("Enrollment Not Found");
+        }
+        if (!Enrollment.Status.COMPLETED.equals(enrollment.getStatus())) {
+            throw new RuntimeException("User has not completed this course");
+        }
 
         CourseReview courseReview = new CourseReview();
         courseReview.setCourse(course);

@@ -3,8 +3,10 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 import doan.ptit.programmingtrainingcenter.dto.request.CourseReviewRequest;
 import doan.ptit.programmingtrainingcenter.entity.CourseReview;
+import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CourseReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,9 @@ public class CourseReviewController {
     }
     @PostMapping
     public CourseReview addReview(@RequestBody CourseReviewRequest courseReviewRequest) {
-        return courseReviewService.createReview(courseReviewRequest);
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return courseReviewService.createReview(currentUser.getId(),courseReviewRequest);
     }
 
     @DeleteMapping("/{id}")

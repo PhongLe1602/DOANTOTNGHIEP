@@ -12,6 +12,6 @@ public interface CourseReviewService {
     CourseReview getReviewById (String id);
     List<CourseReview> getReviewsByCourseId (String courseId);
     List<CourseReview> getReviewsByUserId (String userId);
-    CourseReview createReview (CourseReviewRequest courseReviewRequest);
+    CourseReview createReview (String userId,CourseReviewRequest courseReviewRequest);
     void deleteReview (String id);
 }
