@@ -50,9 +50,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         CourseClass courseClass = courseClassRepository.findById(scheduleRequest.getCourseClassId()).
                 orElseThrow(() -> new RuntimeException("Course Class Not Found"));
 
-        User user = userRepository.findById(scheduleRequest.getInstructorId()).orElseThrow(() -> new RuntimeException("User Not Found"));
 
-        Schedule schedule = scheduleMapper.toEntity(scheduleRequest,courseClass,user);
+
+        Schedule schedule = scheduleMapper.toEntity(scheduleRequest,courseClass);
 
         return scheduleRepository.save(schedule);
 
@@ -96,7 +96,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                     .endTime(calculateEndTime(date, request.getStartTime(), request.getDuration())) // Tính thời gian kết thúc
                     .duration(request.getDuration())
                     .description(request.getDescription())
-                    .instructor(instructor)
                     .onlineLink(request.getOnlineLink())
                     .location(request.getLocation())
                     .build();

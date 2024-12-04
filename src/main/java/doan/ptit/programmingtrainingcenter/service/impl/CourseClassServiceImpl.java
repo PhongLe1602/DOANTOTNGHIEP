@@ -11,6 +11,7 @@ import doan.ptit.programmingtrainingcenter.mapper.CourseClassMapper;
 import doan.ptit.programmingtrainingcenter.repository.ClassStudentRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
+import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class CourseClassServiceImpl implements CourseClassService {
 
     @Autowired
     private CourseClassMapper courseClassMapper;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
 
@@ -47,7 +51,9 @@ public class CourseClassServiceImpl implements CourseClassService {
     public CourseClass createClass(CourseClassRequest courseClassRequest) {
         Course course = courseRepository.findById(courseClassRequest.getCourseId()).
                 orElseThrow(() -> new RuntimeException("Courses Not Found"));
-        CourseClass newClass = courseClassMapper.toClass(courseClassRequest, course);
+        User user = userRepository.findById(courseClassRequest.getInstructorId()).
+                orElseThrow(() -> new RuntimeException("User Not Found"));
+        CourseClass newClass = courseClassMapper.toClass(courseClassRequest, course ,user);
 
         return classRepository.save(newClass);
     }
@@ -58,7 +64,9 @@ public class CourseClassServiceImpl implements CourseClassService {
                 orElseThrow(() -> new RuntimeException("Courses Not Found"));
         CourseClass classToUpdate = classRepository.findById(classId).
                 orElseThrow(() -> new RuntimeException("Class Not Found"));
-        courseClassMapper.updateClass(classToUpdate,courseClassRequest,course);
+        User user = userRepository.findById(courseClassRequest.getInstructorId()).
+                orElseThrow(() -> new RuntimeException("User Not Found"));
+        courseClassMapper.updateClass(classToUpdate,courseClassRequest,course,user);
 
         return classRepository.save(classToUpdate);
     }
@@ -76,6 +84,11 @@ public class CourseClassServiceImpl implements CourseClassService {
     @Override
     public List<User> getStudentsByClassId(String classId) {
         return classRepository.findUsersByClassId(classId);
+    }
+
+    @Override
+    public List<CourseClass> getClassByInstructorId(String instructorId) {
+        return classRepository.findByInstructorId(instructorId);
     }
 
 

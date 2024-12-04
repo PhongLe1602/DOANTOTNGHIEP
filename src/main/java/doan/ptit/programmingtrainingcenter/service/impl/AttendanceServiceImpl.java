@@ -2,6 +2,8 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.AttendanceRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.AttendanceSessionDetailResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.StudentAttendanceResponse;
 import doan.ptit.programmingtrainingcenter.entity.Attendance;
 import doan.ptit.programmingtrainingcenter.entity.AttendanceSession;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
@@ -11,11 +13,13 @@ import doan.ptit.programmingtrainingcenter.repository.AttendanceSessionRepositor
 import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.AttendanceService;
+import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
@@ -32,6 +36,9 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Autowired
     private AttendanceSessionRepository attendanceSessionRepository;
 
+    @Autowired
+    private CourseClassService courseClassService;
+
     @Override
     public List<Attendance> getAllAttendance() {
         return attendanceRepository.findAll();
@@ -42,44 +49,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         return attendanceRepository.findById(id).orElseThrow(() -> new RuntimeException("Attendance Not Found"));
     }
 
-//    @Override
-//    public Attendance addAttendance(AttendanceRequest attendanceRequest) {
-//        Attendance attendance = new Attendance();
-//        CourseClass courseClass = courseClassRepository.findById(attendanceRequest.getClassId()).
-//                orElseThrow(() -> new RuntimeException("CourseClass Not Found"));
-//        User student = userRepository.findById(attendanceRequest.getStudentId()).
-//                orElseThrow(() -> new RuntimeException("User Not Found"));
-//        User createBy = userRepository.findById(attendanceRequest.getCreatedBy()).
-//                orElseThrow(() -> new RuntimeException("User Not Found"));
-//
-//        attendance.setStudent(student);
-//        attendance.setClassEntity(courseClass);
-//        attendance.setCreatedBy(createBy);
-//        attendance.setDate(attendanceRequest.getDate());
-//        attendance.setStatus(Attendance.Status.valueOf(attendanceRequest.getStatus()));
-//        attendance.setNote(attendanceRequest.getNote());
-//        return attendanceRepository.save(attendance);
-//    }
-//
-//    @Override
-//    public Attendance updateAttendance(String id ,AttendanceRequest attendanceRequest) {
-//        Attendance attendance = attendanceRepository.findById(id).
-//                orElseThrow(() -> new RuntimeException("Attendance Not Found"));
-//        CourseClass courseClass = courseClassRepository.findById(attendanceRequest.getClassId()).
-//                orElseThrow(() -> new RuntimeException("CourseClass Not Found"));
-//        User student = userRepository.findById(attendanceRequest.getStudentId()).
-//                orElseThrow(() -> new RuntimeException("User Not Found"));
-//        User createBy = userRepository.findById(attendanceRequest.getCreatedBy()).
-//                orElseThrow(() -> new RuntimeException("User Not Found"));
-//        attendance.setNote(attendanceRequest.getNote());
-//        attendance.setDate(attendanceRequest.getDate());
-//        attendance.setStatus(Attendance.Status.valueOf(attendanceRequest.getStatus()));
-//        attendance.setStudent(student);
-//        attendance.setClassEntity(courseClass);
-//        attendance.setCreatedBy(createBy);
-//
-//        return attendanceRepository.save(attendance);
-//    }
+
 
     @Override
     public void deleteAttendance(String id) {
@@ -114,4 +84,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         return "Check-in successful!";
     }
+
+    @Override
+    public List<Attendance> getAttendanceBySessionId(String sessionId) {
+        return attendanceRepository.findBySessionId(sessionId);
+    }
+
+
 }

@@ -57,5 +57,9 @@ public class AttendanceController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
         }
     }
+    @GetMapping("/session/{sessionId}")
+    public List<Attendance> getAttendanceBySession(@PathVariable String sessionId) {
+        return attendanceService.getAttendanceBySessionId(sessionId);
+    }
 
 }

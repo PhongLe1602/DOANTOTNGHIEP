@@ -44,10 +44,6 @@ public class Schedule {
     @Column(columnDefinition = "TEXT")
     String description;
 
-    // Thay đổi thành instructor_id
-    @ManyToOne
-    @JoinColumn(name = "instructor_id", nullable = true)
-    User instructor;
 
     // Thêm link học online
     @Column(name = "online_link", length = 255)

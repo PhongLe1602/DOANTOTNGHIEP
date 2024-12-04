@@ -11,6 +11,7 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CourseClassRequest {
     String name;
+    String instructorId;
     String courseId;
     Date startDate;
     Date endDate;

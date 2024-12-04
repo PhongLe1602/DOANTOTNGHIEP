@@ -26,6 +26,10 @@ public class CourseClass {
     @JoinColumn(name = "course_id", nullable = false)
     Course course;
 
+    @ManyToOne
+    @JoinColumn(name = "instructor_id", nullable = false)
+    User instructor;
+
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.DATE)
     Date startDate;

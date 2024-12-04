@@ -31,7 +31,6 @@ public class ScheduleRequest {
 
     String description;
 
-    String instructorId;
 
     // Dành riêng cho buổi học offline
     String location; // Địa điểm cho buổi học offline

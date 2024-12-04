@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.AttendanceRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.AttendanceSessionDetailResponse;
 import doan.ptit.programmingtrainingcenter.entity.Attendance;
 import org.springframework.stereotype.Service;
 
@@ -15,4 +16,6 @@ public interface AttendanceService {
 //    Attendance updateAttendance(String id ,AttendanceRequest attendanceRequest);
     void deleteAttendance(String id);
     String checkIn(String sessionId,String studentId);
+    List<Attendance> getAttendanceBySessionId(String sessionId);
+
 }

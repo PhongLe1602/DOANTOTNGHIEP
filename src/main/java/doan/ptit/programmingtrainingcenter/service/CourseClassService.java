@@ -18,6 +18,7 @@ public interface CourseClassService {
     void deleteClass(String id);
     List<CourseClass> getClassByCourseId(String courseId);
     List<User> getStudentsByClassId(String classId);
+    List<CourseClass> getClassByInstructorId(String instructorId);
 
 
 }
