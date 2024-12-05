@@ -6,6 +6,9 @@ import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.User;
+import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +16,7 @@ import java.util.Optional;
 public interface UserService {
 
 
-    List<User> getAllUsers();
+    Page<User> getAllUsers(List<SearchCriteria> criteriaList, Pageable pageable);
     User getUserById(String id);
     User createUser(UserRequest userRequest);
     User updateUser(String id ,UserRequest userRequest);

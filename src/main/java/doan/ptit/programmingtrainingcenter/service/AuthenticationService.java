@@ -21,4 +21,6 @@ public interface AuthenticationService {
 
     AuthResponse active(String token);
 
+    TokenResponse adminLogin(SignInRequest signInRequest);
+
 }

@@ -11,7 +11,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-    private int status;
+    private String status;
+    private int statusCode;
     private String message;
     private Date timestamp;
     private String path;

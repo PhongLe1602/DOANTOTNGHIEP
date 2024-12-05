@@ -13,7 +13,12 @@ import doan.ptit.programmingtrainingcenter.mapper.UserMapper;
 import doan.ptit.programmingtrainingcenter.repository.RoleRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.UserService;
+import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
+import doan.ptit.programmingtrainingcenter.specification.SpecificationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +46,14 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private Cloudinary cloudinary;
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public Page<User> getAllUsers(List<SearchCriteria> criteriaList, Pageable pageable) {
+        SpecificationBuilder<User> builder = new SpecificationBuilder<>();
+        for (SearchCriteria criteria : criteriaList) {
+            builder.with(criteria.getKey(), criteria.getOperation(), criteria.getValue());
+        }
+        Specification<User> specification = builder.build();
+
+        return userRepository.findAll(specification, pageable);
     }
 
     public User getUserById(String id) {

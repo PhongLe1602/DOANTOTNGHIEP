@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -16,12 +17,13 @@ import java.util.Date;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler({RuntimeException.class , MethodArgumentNotValidException.class })
+    @ExceptionHandler({RuntimeException.class , MethodArgumentNotValidException.class , BadCredentialsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleException(Exception e , WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatus("error");
         errorResponse.setMessage(e.getMessage());
-        errorResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setStatusCode(HttpStatus.BAD_REQUEST.value());
         errorResponse.setTimestamp(new Date(System.currentTimeMillis()));
         errorResponse.setPath(request.getDescription(false).replace("uri=" , ""));
         errorResponse.setError(HttpStatus.BAD_REQUEST.getReasonPhrase());
@@ -32,8 +34,9 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleExpiredJwtException(ExpiredJwtException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatus("error");
         errorResponse.setMessage("Token JWT đã hết hạn");
-        errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        errorResponse.setStatusCode(HttpStatus.UNAUTHORIZED.value());
         errorResponse.setTimestamp(new Date(System.currentTimeMillis()));
         errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
         errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());
@@ -44,8 +47,9 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleExpiredJwtException(TokenExpiredException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatus("error");
         errorResponse.setMessage("Token JWT null");
-        errorResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+        errorResponse.setStatusCode(HttpStatus.UNAUTHORIZED.value());
         errorResponse.setTimestamp(new Date(System.currentTimeMillis()));
         errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
         errorResponse.setError(HttpStatus.UNAUTHORIZED.getReasonPhrase());

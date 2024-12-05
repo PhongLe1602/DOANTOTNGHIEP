@@ -6,7 +6,6 @@ import doan.ptit.programmingtrainingcenter.dto.request.RegisterRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.SignInRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.AuthResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.TokenResponse;
-import doan.ptit.programmingtrainingcenter.entity.Role;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
@@ -14,18 +13,17 @@ import doan.ptit.programmingtrainingcenter.security.CustomUserDetailsService;
 import doan.ptit.programmingtrainingcenter.service.AuthenticationService;
 import doan.ptit.programmingtrainingcenter.service.EmailService;
 import doan.ptit.programmingtrainingcenter.service.JwtService;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,9 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+
 
 
 @Service
@@ -174,6 +170,38 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .timestamp(new Date())
                 .build();
     }
+
+    @Override
+    public TokenResponse adminLogin(SignInRequest signInRequest) {
+
+        Authentication authenticationAdmin = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
+        );
+
+        var userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(signInRequest.getEmail());
+
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        if (!roles.contains("ROLE_ADMIN") && !roles.contains("ROLE_INSTRUCTOR") ) {
+            throw new AccessDeniedException("Bạn không có quyền");
+        }
+
+        // Generate tokens
+        String accessToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+
+        // Create response
+        return TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .userId(userDetails.getId())
+                .profilePicture(userDetails.getProfilePicture())
+                .roles(roles)
+                .build();
+    }
+
 
 
 }

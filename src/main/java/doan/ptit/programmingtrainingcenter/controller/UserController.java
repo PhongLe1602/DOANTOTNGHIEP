@@ -5,12 +5,21 @@ import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.ApiPageResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.ApiResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
+import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CloudinaryService;
 import doan.ptit.programmingtrainingcenter.service.UserService;
+import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,9 +40,41 @@ public class UserController {
     private CloudinaryService cloudinaryService;
 
     @GetMapping
-    List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ApiPageResponse<User> getAllUsers(
+            @RequestParam(required = false) List<String> criteria,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(required = false) String key,
+            @RequestParam(required = false) String operation,
+            @RequestParam(required = false) String value) {
+
+
+        List<Sort.Order> orders = new ArrayList<>();
+        try {
+            Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
+            orders.add(new Sort.Order(direction, sortBy));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid sort direction: " + sortDirection + ". Use 'asc' or 'desc'.");
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
+
+
+        List<SearchCriteria> criteriaList = new ArrayList<>();
+        if (key != null && operation != null && value != null) {
+            criteriaList.add(new SearchCriteria(key, operation, value));
+        }
+
+
+        Page<User> users = userService.getAllUsers(criteriaList, pageable);
+        return ApiPageResponse.success(users, "User retrieved successfully");
+
     }
+
+
+
     @GetMapping("/{id}")
     User getUserById(@PathVariable String id) {
         return userService.getUserById(id);

@@ -31,6 +31,11 @@ public class AuthenticationController {
         TokenResponse response = authenticationService.authenticate(signInRequest);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/admin/login")
+    public ResponseEntity<?> adminLogin(@RequestBody @Valid SignInRequest signInRequest) {
+        TokenResponse response = authenticationService.adminLogin(signInRequest);
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/refresh")
     public ResponseEntity<TokenResponse> refresh(HttpServletRequest request) {
