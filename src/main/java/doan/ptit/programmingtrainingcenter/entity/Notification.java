@@ -36,6 +36,7 @@ public class Notification {
     @Column(nullable = false, length = 10)
     Status status;
 
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     Date createdAt;
@@ -57,4 +58,6 @@ public class Notification {
         ACTIVE,
         ARCHIVED
     }
+
+
 }

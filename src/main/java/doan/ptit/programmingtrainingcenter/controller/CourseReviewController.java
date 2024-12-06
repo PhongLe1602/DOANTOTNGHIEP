@@ -18,7 +18,7 @@ public class CourseReviewController {
     @Autowired
     private CourseReviewService courseReviewService;
 
-    @GetMapping("/users/{userId})")
+    @GetMapping("/users/{userId}")
     public List<CourseReview> getReviewOfUser(@PathVariable("userId") String userId) {
         return courseReviewService.getReviewsByUserId(userId);
     }
