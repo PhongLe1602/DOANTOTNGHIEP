@@ -61,5 +61,10 @@ public class AttendanceController {
     public List<Attendance> getAttendanceBySession(@PathVariable String sessionId) {
         return attendanceService.getAttendanceBySessionId(sessionId);
     }
-
+    @GetMapping("/student")
+    public List<Attendance> getAttendanceByStudent() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return attendanceService.getAttendanceByStudentId(currentUser.getId());
+    }
 }

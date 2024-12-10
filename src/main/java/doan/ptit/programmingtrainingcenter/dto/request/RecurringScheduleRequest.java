@@ -11,7 +11,6 @@ import java.util.List;
 public class RecurringScheduleRequest {
 
     private String courseClassId;
-    private String instructorId;
     private String description;
     private int duration; // thời lượng buổi học (phút)
     private LocalDate startDate; // ngày bắt đầu

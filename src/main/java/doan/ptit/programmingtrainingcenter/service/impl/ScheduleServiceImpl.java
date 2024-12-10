@@ -77,9 +77,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         CourseClass courseClass = courseClassRepository.findById(request.getCourseClassId()).
                 orElseThrow(() -> new RuntimeException("Course Class Not Found"));
 
-        User instructor = userRepository.findById(request.getInstructorId())
-                .orElseThrow(() -> new RuntimeException("Instructor Not Found"));
-
         List<LocalDate> repeatDates = getRepeatDates(
                 request.getStartDate(),
                 request.getEndDate(),
@@ -102,6 +99,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             schedules.add(schedule);
         }
+        courseClass.setTotalSessions(schedules.size());
+        courseClassRepository.save(courseClass);
 
         return scheduleRepository.saveAll(schedules);
     }

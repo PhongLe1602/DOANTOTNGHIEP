@@ -64,6 +64,8 @@ public class AttendanceServiceImpl implements AttendanceService {
                 orElseThrow(() -> new RuntimeException("AttendanceSession Not Found"));
         User student = userRepository.findById(studentId).
                 orElseThrow(() -> new RuntimeException("User Not Found"));
+        CourseClass courseClass = courseClassRepository.findById(session.getCourseClass().getId()).
+                orElseThrow(() -> new RuntimeException("CourseClass Not Found"));
         if (session == null || session.getExpiryTime().before(new Date())) {
             return "Session invalid or expired!";
         }
@@ -79,7 +81,8 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .student(student)
                 .status(Attendance.Status.PRESENT)
                 .build();
-
+        courseClass.setCompletedSessions(courseClass.getCompletedSessions() + 1);
+        courseClassRepository.save(courseClass);
         attendanceRepository.save(attendance);
 
         return "Check-in successful!";
@@ -88,6 +91,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> getAttendanceBySessionId(String sessionId) {
         return attendanceRepository.findBySessionId(sessionId);
+    }
+
+    @Override
+    public List<Attendance> getAttendanceByStudentId(String studentId) {
+        return attendanceRepository.findByStudentId(studentId);
     }
 
 

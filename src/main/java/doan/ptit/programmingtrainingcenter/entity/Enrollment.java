@@ -23,25 +23,24 @@ public class Enrollment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_enrollment_user_id"), nullable = false)
-    User user; // Học viên đăng ký khóa học
+    User user;
 
     @ManyToOne
     @JoinColumn(name = "course_id", foreignKey = @ForeignKey(name = "FK_enrollment_course_id"), nullable = false)
-    Course course; // Khóa học mà học viên đăng ký
+    Course course;
 
     @ManyToOne
     @JoinColumn(name = "order_item_id", foreignKey = @ForeignKey(name = "FK_enrollment_order_item_id"))
-    OrderItem orderItem; // Link
+    OrderItem orderItem;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "enrollment_date", nullable = false)
-    Date enrollmentDate; // Ngày học viên đăng ký
+    Date enrollmentDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    Status status = Status.PENDING; // Trạng thái đăng ký
-
+    Status status = Status.PENDING;
     @Column(nullable = false, precision = 5, scale = 2)
     BigDecimal progress = BigDecimal.valueOf(0.00); // Tiến độ hoàn thành của khóa học (%)
 

@@ -17,5 +17,6 @@ public interface AttendanceService {
     void deleteAttendance(String id);
     String checkIn(String sessionId,String studentId);
     List<Attendance> getAttendanceBySessionId(String sessionId);
+    List<Attendance> getAttendanceByStudentId(String studentId);
 
 }

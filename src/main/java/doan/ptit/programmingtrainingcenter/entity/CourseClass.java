@@ -47,6 +47,13 @@ public class CourseClass {
     @Column(name = "max_students", columnDefinition = "INT DEFAULT 30")
     int maxStudents;
 
+    @Column(name = "completed_sessions", nullable = false, columnDefinition = "INT DEFAULT 0")
+    int completedSessions;
+
+    @Column(name = "total_sessions", nullable = false)
+    int totalSessions;
+
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 15, columnDefinition = "ENUM('ACTIVE', 'COMPLETED', 'CANCELLED') DEFAULT 'ACTIVE'")
     Status status;

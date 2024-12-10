@@ -2,6 +2,8 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.NotificationRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.NotificationRecipientResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.UserNotificationResponse;
 import doan.ptit.programmingtrainingcenter.entity.Notification;
 import doan.ptit.programmingtrainingcenter.entity.NotificationRecipient;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
@@ -28,13 +30,15 @@ public class NotificationController {
 
     @PostMapping
     public Notification createNotification(@RequestBody NotificationRequest notificationRequest) {
-        return notificationService.createNotification(notificationRequest);
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return notificationService.createNotification(currentUser.getId(),notificationRequest);
     }
 
 
 
     @GetMapping("/recipient")
-    public List<NotificationRecipient> getNotificationsOfRecipient() {
+    public UserNotificationResponse getNotificationsOfRecipient() {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
         return notificationService.getNotificationsOfRecipient(currentUser.getId());

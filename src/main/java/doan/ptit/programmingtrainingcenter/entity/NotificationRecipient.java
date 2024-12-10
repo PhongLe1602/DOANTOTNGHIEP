@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,10 +23,12 @@ public class NotificationRecipient {
 
     @ManyToOne
     @JoinColumn(name = "notification_id", nullable = false, foreignKey = @ForeignKey(name = "FK_notification_id"))
+    @JsonBackReference
     Notification notification;
 
-    @Column(nullable = false)
-    String recipientId;
+    @ManyToOne
+    @JoinColumn(name = "recipient_id", foreignKey = @ForeignKey(name = "FK_notification_user_id"), nullable = false)
+    User recipient;
 
     @Column(nullable = false)
     boolean isRead;

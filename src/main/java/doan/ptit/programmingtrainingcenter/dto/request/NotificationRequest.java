@@ -27,6 +27,8 @@ public class NotificationRequest {
     @NotNull(message = "Status cannot be null")
     private Notification.Status status;
 
+    @NotNull(message = "Creator ID cannot be null")
+    private String creatorId;
 
     private List<String> recipientIds;
 

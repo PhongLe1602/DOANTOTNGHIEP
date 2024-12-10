@@ -1,5 +1,6 @@
 package doan.ptit.programmingtrainingcenter.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -36,6 +37,10 @@ public class Notification {
     @Column(nullable = false, length = 10)
     Status status;
 
+    @ManyToOne
+    @JoinColumn(name = "creator_id", nullable = false)
+    @JsonManagedReference
+    User creator;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -46,6 +51,7 @@ public class Notification {
     Date updatedAt;
 
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     List<NotificationRecipient> recipients;
 
     public enum Type {
