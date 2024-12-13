@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addRole(UserRoleRequest userRoleRequest) {
+    public void assignRole(UserRoleRequest userRoleRequest) {
         User user = userRepository.findById(userRoleRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userRoleRequest.getUserId()));
 

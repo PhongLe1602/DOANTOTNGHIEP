@@ -33,7 +33,7 @@ public class ClassStudent {
     Date joinedDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15, columnDefinition = "ENUM('studying', 'completed', 'dropped') DEFAULT 'studying'")
+    @Column(nullable = false, length = 15, columnDefinition = "ENUM('STUDYING', 'COMPLETED', 'DROPPED') DEFAULT 'STUDYING'")
     Status status;
 
     @CreationTimestamp

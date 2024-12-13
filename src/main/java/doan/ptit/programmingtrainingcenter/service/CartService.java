@@ -9,6 +9,8 @@ import java.util.Optional;
 
 @Service
 public interface CartService {
-    Cart addCourseToCart(CartRequest cartRequest);
+    Cart addCourseToCart(String userId , CartRequest cartRequest);
     Optional<Cart> getCart(String  userId);
+    void deleteCart(String userId);
+    void deleteCartItem(String userId, String itemId);
 }

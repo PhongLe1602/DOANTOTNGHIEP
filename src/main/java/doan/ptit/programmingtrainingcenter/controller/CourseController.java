@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.ApiResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.CoursesListResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
@@ -26,7 +27,7 @@ public class CourseController {
 
 
     @GetMapping
-    public ApiResponse<PagedResponse<Course>>  getCourses(
+    public ApiResponse<PagedResponse<CoursesListResponse>>  getCourses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title") String sortBy,
@@ -41,8 +42,8 @@ public class CourseController {
         if (key != null && operation != null && value != null) {
             filters.add(new SearchCriteria(key, operation, value));
         }
-        Page<Course> coursePage = courseService.getCourses(page, size, sortBy,sortDirection, filters);
-        PagedResponse<Course> response = new PagedResponse<>(coursePage);
+        Page<CoursesListResponse> coursePage = courseService.getCourses(page, size, sortBy,sortDirection, filters);
+        PagedResponse<CoursesListResponse> response = new PagedResponse<>(coursePage);
         return ApiResponse.success("Courses retrieved successfully", response);
     }
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})

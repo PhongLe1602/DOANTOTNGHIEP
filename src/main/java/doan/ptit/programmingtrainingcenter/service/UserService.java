@@ -24,7 +24,7 @@ public interface UserService {
     void updateUserAvatar(String id, String avatarUrl);
     List<User> getAllStudents();
     List<User> getAllTeachers();
-    void addRole(UserRoleRequest userRoleRequest);
+    void assignRole(UserRoleRequest userRoleRequest);
     void deleteRole(String userId,String roleId);
     Boolean blockUser(BlockUserRequest blockUserRequest);
 

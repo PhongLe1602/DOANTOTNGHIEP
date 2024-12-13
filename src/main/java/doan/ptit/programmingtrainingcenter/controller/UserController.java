@@ -117,7 +117,7 @@ public class UserController {
 
     @PostMapping("/role")
     public boolean addRole(@RequestBody UserRoleRequest userRoleRequest) {
-        userService.addRole(userRoleRequest);
+        userService.assignRole(userRoleRequest);
         return true;
     }
     @DeleteMapping("/{userId}/role/{roleId}")
