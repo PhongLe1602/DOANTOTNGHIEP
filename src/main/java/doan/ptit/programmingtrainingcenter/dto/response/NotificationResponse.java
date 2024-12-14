@@ -16,4 +16,5 @@ public class NotificationResponse {
     private String message;
     private Notification.Type type;
     private Notification.Status status;
+    private UserResponse creator;
 }

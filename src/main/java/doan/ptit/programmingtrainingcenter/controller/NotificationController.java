@@ -2,10 +2,10 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.NotificationRequest;
-import doan.ptit.programmingtrainingcenter.dto.response.NotificationRecipientResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.NotificationResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.SimpleResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserNotificationResponse;
 import doan.ptit.programmingtrainingcenter.entity.Notification;
-import doan.ptit.programmingtrainingcenter.entity.NotificationRecipient;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class NotificationController {
 
 
     @GetMapping
-    public List<Notification> getNotifications() {
+    public List<NotificationResponse> getNotifications() {
         return notificationService.getNotifications();
     }
 
@@ -56,6 +56,22 @@ public class NotificationController {
                 .getContext().getAuthentication().getPrincipal();
         notificationService.markAsReadByUser(currentUser.getId(), notificationId);
         return true;
+    }
+
+    @PostMapping("/{notificationId}/send")
+    public SimpleResponse sendNotificationToRecipients(
+            @PathVariable String notificationId,
+            @RequestBody List<String> recipientIds) {
+        notificationService.sendNotificationToRecipients(notificationId, recipientIds);
+        return SimpleResponse.success("Gửi thông báo thành công");
+    }
+
+    @PostMapping("/{notificationId}/send/{recipientId}")
+    public SimpleResponse sendNotificationToRecipient(
+            @PathVariable String notificationId,
+            @PathVariable String recipientId) {
+        notificationService.sendNotificationToRecipient(notificationId, recipientId);
+        return SimpleResponse.success("Gửi thông báo thành công");
     }
 
 }

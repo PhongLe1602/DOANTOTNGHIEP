@@ -12,5 +12,5 @@ public interface CartService {
     Cart addCourseToCart(String userId , CartRequest cartRequest);
     Optional<Cart> getCart(String  userId);
     void deleteCart(String userId);
-    void deleteCartItem(String userId, String itemId);
+    void deleteCartItem(String userId, String cartItemId);
 }

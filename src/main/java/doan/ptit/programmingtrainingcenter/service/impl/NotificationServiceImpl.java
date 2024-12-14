@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import com.google.zxing.NotFoundException;
 import doan.ptit.programmingtrainingcenter.dto.request.NotificationRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.NotificationRecipientResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.NotificationResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserNotificationResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserResponse;
 import doan.ptit.programmingtrainingcenter.entity.Notification;
@@ -29,13 +30,27 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
 
     @Override
-    public List<Notification> getNotifications() {
-        return notificationRepository.findAll();
+    public List<NotificationResponse> getNotifications() {
+        return notificationRepository.findAll()
+                .stream()
+                .map(notification -> NotificationResponse.builder()
+                        .id(notification.getId())
+                        .title(notification.getTitle())
+                        .message(notification.getMessage())
+                        .type(notification.getType())
+                        .status(notification.getStatus())
+                        .creator(UserResponse.builder()
+                                .id(notification.getCreator().getId())
+                                .name(notification.getCreator().getFullName())
+                                .email(notification.getCreator().getEmail())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Notification createNotification(String creatorId,NotificationRequest notificationRequest) {
+    public Notification createNotification(String creatorId, NotificationRequest notificationRequest) {
 
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
@@ -50,25 +65,22 @@ public class NotificationServiceImpl implements NotificationService {
 
         Notification savedNotification = notificationRepository.save(notification);
 
-
-        if (notificationRequest.getRecipientIds() == null || notificationRequest.getRecipientIds().isEmpty()) {
-            throw new IllegalArgumentException("Recipient list cannot be null or empty.");
+        // Kiểm tra nếu có danh sách recipientIds
+        if (notificationRequest.getRecipientIds() != null && !notificationRequest.getRecipientIds().isEmpty()) {
+            List<NotificationRecipient> recipients = notificationRequest.getRecipientIds().stream()
+                    .map(recipientId -> NotificationRecipient.builder()
+                            .notification(savedNotification)
+                            .recipient(userRepository.findById(recipientId).orElseThrow(() ->
+                                    new EntityNotFoundException("User with ID " + recipientId + " not found.")))
+                            .isRead(false)
+                            .build())
+                    .toList();
+            notificationRecipientRepository.saveAll(recipients);
         }
-
-
-        List<NotificationRecipient> recipients = notificationRequest.getRecipientIds().stream()
-                .map(recipientId -> NotificationRecipient.builder()
-                        .notification(savedNotification)
-                        .recipient(userRepository.findById(recipientId).orElseThrow(() ->
-                                new EntityNotFoundException("User with ID " + recipientId + " not found.")))
-                        .isRead(false)
-                        .build())
-                .toList();
-
-        notificationRecipientRepository.saveAll(recipients);
 
         return savedNotification;
     }
+
 
 
     @Override
@@ -108,12 +120,84 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void markAsReadByUser(String recipientId, String notificationId) {
         NotificationRecipient notificationRecipient = notificationRecipientRepository.findByRecipientIdAndNotificationId(recipientId,notificationId);
         notificationRecipient.setRead(true);
         notificationRecipientRepository.save(notificationRecipient);
 
 
+    }
+
+    @Override
+    @Transactional
+    public void sendNotificationToRecipients(String notificationId, List<String> recipientIds) {
+        // Tìm thông báo theo ID
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification with ID " + notificationId + " not found."));
+
+        // Kiểm tra danh sách recipientIds có hợp lệ không
+        if (recipientIds == null || recipientIds.isEmpty()) {
+            throw new IllegalArgumentException("Recipient list cannot be null or empty.");
+        }
+
+        // Tạo danh sách NotificationRecipient và lưu vào database
+        List<NotificationRecipient> notificationRecipients = recipientIds.stream()
+                .map(recipientId -> {
+                    User recipient = userRepository.findById(recipientId)
+                            .orElseThrow(() -> new EntityNotFoundException("User with ID " + recipientId + " not found."));
+
+                    return NotificationRecipient.builder()
+                            .notification(notification)
+                            .recipient(recipient)
+                            .isRead(false)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        notificationRecipientRepository.saveAll(notificationRecipients);
+    }
+
+    @Override
+    @Transactional
+    public void sendNotificationToRecipient(String notificationId, String recipientId) {
+        // Tìm thông báo theo ID
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new EntityNotFoundException("Notification with ID " + notificationId + " not found."));
+
+        // Tìm người nhận theo ID
+        User recipient = userRepository.findById(recipientId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + recipientId + " not found."));
+
+        // Tạo NotificationRecipient và lưu vào database
+        NotificationRecipient notificationRecipient = NotificationRecipient.builder()
+                .notification(notification)
+                .recipient(recipient)
+                .isRead(false)
+                .build();
+
+        notificationRecipientRepository.save(notificationRecipient);
+    }
+
+    @Override
+    @Transactional
+    public void sendSystemNotification(String title, String message, String recipientId) {
+        Notification notification = Notification.builder()
+                .title(title)
+                .message(message)
+                .type(Notification.Type.SYSTEM)
+                .status(Notification.Status.ACTIVE)
+                .build();
+
+        Notification savedNotification = notificationRepository.save(notification);
+        User recipient = userRepository.findById(recipientId)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + recipientId + " not found."));
+        NotificationRecipient notificationRecipient = NotificationRecipient.builder()
+                .notification(savedNotification)
+                .recipient(recipient)
+                .isRead(false)
+                .build();
+        notificationRecipientRepository.save(notificationRecipient);
     }
 
 }

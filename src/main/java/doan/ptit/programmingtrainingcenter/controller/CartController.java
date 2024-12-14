@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/carts")
 public class CartController {
@@ -28,9 +30,10 @@ public class CartController {
     public ResponseEntity<?> getCartByUserId() {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
-        return cartService.getCart(currentUser.getId())
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Optional<Cart> cart = cartService.getCart(currentUser.getId());
+
+        return cart.<ResponseEntity<?>>map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok(new Cart()));
+
     }
     @DeleteMapping
     public SimpleResponse deleteCartByUserId() {
@@ -39,11 +42,11 @@ public class CartController {
         cartService.deleteCart(currentUser.getId());
         return SimpleResponse.success("Xóa thành công giỏ hàng");
     }
-    @DeleteMapping("/item/{id}")
-    public SimpleResponse deleteCartItemByUserId(@PathVariable String id) {
+    @DeleteMapping("/item/{cartItemId}")
+    public SimpleResponse deleteCartItemByUserId(@PathVariable String cartItemId) {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
-        cartService.deleteCartItem(currentUser.getId(),id);
+        cartService.deleteCartItem(currentUser.getId(),cartItemId);
         return SimpleResponse.success("Xóa thành công khóa học khỏi giỏ hàng");
     }
 }
