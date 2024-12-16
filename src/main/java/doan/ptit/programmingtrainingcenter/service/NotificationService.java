@@ -11,8 +11,8 @@ import java.util.List;
 
 @Service
 public interface NotificationService {
-    List<NotificationResponse> getNotifications();
-    Notification createNotification(String creatorId,NotificationRequest notificationRequest);
+    List<NotificationResponse> getNotifications(String userId , String role);
+    NotificationResponse createNotification(String creatorId,NotificationRequest notificationRequest);
     UserNotificationResponse getNotificationsOfRecipient(String recipientId);
     void markAsALLReadByUser(String recipientId);
     void markAsReadByUser(String recipientId, String notificationId );

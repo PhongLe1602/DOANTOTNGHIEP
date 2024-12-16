@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class NotificationResponse {
     private Notification.Type type;
     private Notification.Status status;
     private UserResponse creator;
+    private Date createdAt;
 }

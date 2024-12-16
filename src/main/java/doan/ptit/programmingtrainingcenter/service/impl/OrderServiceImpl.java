@@ -96,7 +96,6 @@ public class OrderServiceImpl implements OrderService {
                 .user(cart.getUser())
                 .totalAmount(cart.getTotalAmount())
                 .status(Order.OrderStatus.PENDING)
-                .paymentMethod(paymentMethod)
                 .paymentStatus(Order.PaymentStatus.PENDING)
                 .build();
         // Chuyển từng CartItem thành OrderItem và thêm vào Order
@@ -154,7 +153,6 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .totalAmount(course.getPrice())
                 .status(Order.OrderStatus.PENDING)
-                .paymentMethod(paymentMethod)
                 .paymentStatus(Order.PaymentStatus.PENDING)
                 .build();
 

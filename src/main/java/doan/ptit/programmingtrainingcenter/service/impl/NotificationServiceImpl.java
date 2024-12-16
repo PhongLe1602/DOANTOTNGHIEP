@@ -9,6 +9,7 @@ import doan.ptit.programmingtrainingcenter.dto.response.UserResponse;
 import doan.ptit.programmingtrainingcenter.entity.Notification;
 import doan.ptit.programmingtrainingcenter.entity.NotificationRecipient;
 import doan.ptit.programmingtrainingcenter.entity.User;
+import doan.ptit.programmingtrainingcenter.mapper.NotificationMapper;
 import doan.ptit.programmingtrainingcenter.repository.NotificationRecipientRepository;
 import doan.ptit.programmingtrainingcenter.repository.NotificationRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,11 +30,23 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationRecipientRepository notificationRecipientRepository;
     private final UserRepository userRepository;
+    private final NotificationMapper notificationMapper;
 
     @Override
-    public List<NotificationResponse> getNotifications() {
-        return notificationRepository.findAll()
-                .stream()
+    public List<NotificationResponse> getNotifications(String userId , String role) {
+
+        // Thêm thông báo của SYSTEM vào danh sách
+        List<Notification> notifications = new ArrayList<>(notificationRepository.findByType(Notification.Type.valueOf("SYSTEM")));
+
+        // Thêm thông báo của role người dùng vào danh sách nếu có
+        if (role != null) {
+            notifications.addAll(notificationRepository.findByType(Notification.Type.valueOf(role)));
+        }
+
+        notifications.addAll(notificationRepository.findNotificationsForUser(userId));
+
+        // Chuyển đổi từ Notification entity sang NotificationResponse DTO
+        return notifications.stream()
                 .map(notification -> NotificationResponse.builder()
                         .id(notification.getId())
                         .title(notification.getTitle())
@@ -44,13 +58,16 @@ public class NotificationServiceImpl implements NotificationService {
                                 .name(notification.getCreator().getFullName())
                                 .email(notification.getCreator().getEmail())
                                 .build())
+                        .createdAt(notification.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
 
+
+
     @Override
     @Transactional
-    public Notification createNotification(String creatorId, NotificationRequest notificationRequest) {
+    public NotificationResponse createNotification(String creatorId, NotificationRequest notificationRequest) {
 
         User creator = userRepository.findById(creatorId)
                 .orElseThrow(() -> new RuntimeException("User Not Found"));
@@ -78,7 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
             notificationRecipientRepository.saveAll(recipients);
         }
 
-        return savedNotification;
+        return notificationMapper.toNotificationResponse(savedNotification);
     }
 
 
@@ -86,12 +103,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public UserNotificationResponse getNotificationsOfRecipient(String recipientId) {
         List<NotificationRecipient> notificationRecipients = notificationRecipientRepository.findByRecipientId(recipientId);
-        User user = userRepository.findById(recipientId).orElseThrow(() ->new EntityNotFoundException("User with ID " + recipientId + " not found."));
-        UserResponse userResponse = UserResponse.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .name(user.getFullName())
-                .build();
         List<NotificationRecipientResponse> notifications = notificationRecipients.stream()
                 .map(recipient -> NotificationRecipientResponse.builder()
                         .id(recipient.getId())
@@ -102,7 +113,6 @@ public class NotificationServiceImpl implements NotificationService {
                         .build())
                 .toList();
         return UserNotificationResponse.builder()
-                .user(userResponse)
                 .notifications(notifications)
                 .build();
     }

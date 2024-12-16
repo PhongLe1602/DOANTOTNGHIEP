@@ -60,7 +60,12 @@ public class Notification {
     public enum Type {
         SYSTEM,
         COURSE,
-        USER
+        USER,
+        ADMIN,
+        INSTRUCTOR,
+        STUDENT,
+        AUTO,
+        PRIVATE
     }
 
     public enum Status {

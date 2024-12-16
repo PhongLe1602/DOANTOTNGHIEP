@@ -14,4 +14,11 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
             "JOIN ClassStudent cs ON cc.id = cs.courseClass.id " +
             "WHERE cs.student.id = :userId")
     List<Schedule> findSchedulesByUserId(@Param("userId") String userId);
+
+    @Query("SELECT s FROM Schedule s " +
+            "JOIN s.courseClass cc " +
+            "WHERE cc.instructor.id = :instructorId")
+    List<Schedule> findSchedulesByInstructorId(@Param("instructorId") String instructorId);
+
+
 }
