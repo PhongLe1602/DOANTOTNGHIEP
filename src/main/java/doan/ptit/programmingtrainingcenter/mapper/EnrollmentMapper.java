@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.mapper;
 
 import doan.ptit.programmingtrainingcenter.dto.request.EnrollmentRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.User;
@@ -22,4 +23,14 @@ public interface EnrollmentMapper {
     @Mapping(target = "enrollmentDate", ignore = true)
     @Mapping(target = "lastAccessed", ignore = true)
     void updateEnrollment(@MappingTarget Enrollment enrollment, EnrollmentRequest enrollmentRequest);
+
+    @Mapping(source = "user", target = "user")
+    @Mapping(source = "user.fullName", target = "user.name")
+    @Mapping(source = "course", target = "courses")
+    @Mapping(source = "orderItem", target = "orderItem")
+    @Mapping(source = "enrollmentDate", target = "enrollmentDate")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "progress", target = "progress")
+    @Mapping(source = "lastAccessed", target = "lastAccessed")
+    EnrollmentResponse toResponse(Enrollment enrollment);
 }

@@ -2,11 +2,17 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 
 
 import doan.ptit.programmingtrainingcenter.dto.response.CourseRevenueResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserStatisticsResponse;
+import doan.ptit.programmingtrainingcenter.entity.Enrollment;
+import doan.ptit.programmingtrainingcenter.mapper.EnrollmentMapper;
+import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.PaymentRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,6 +31,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private EnrollmentMapper enrollmentMapper;
 
     @Override
     public UserStatisticsResponse getUserStatistics() {
@@ -67,4 +79,16 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<EnrollmentResponse> getTopNewestEnrollments() {
+        Pageable topThree = PageRequest.of(0, 3);
+        List<Enrollment> newestEnrollments = enrollmentRepository.findTop3NewestEnrollments(topThree);
+
+
+        return newestEnrollments.stream()
+                .map(enrollmentMapper::toResponse)
+                .toList();
+    }
+
 }

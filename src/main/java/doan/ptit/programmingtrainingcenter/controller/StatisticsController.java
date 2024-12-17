@@ -2,7 +2,9 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.response.CourseRevenueResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserStatisticsResponse;
+import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,5 +42,10 @@ public class StatisticsController {
             @RequestParam("to") String toDate) throws ParseException {
         List<CourseRevenueResponse> revenues = statisticsService.getRevenueByCourse(fromDate, toDate);
         return ResponseEntity.ok(revenues);
+    }
+    @GetMapping("/newest")
+    public ResponseEntity<List<EnrollmentResponse>> getTop3NewestEnrollments() {
+        List<EnrollmentResponse> newestEnrollments = statisticsService.getTopNewestEnrollments();
+        return ResponseEntity.ok(newestEnrollments);
     }
 }
