@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.response.CourseRevenueResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorStatisticsResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserStatisticsResponse;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import org.springframework.stereotype.Service;
@@ -17,4 +18,5 @@ public interface StatisticsService {
     BigDecimal getRevenueStatistics(String fromDate, String toDate) throws ParseException;
     List<CourseRevenueResponse> getRevenueByCourse(String fromDate, String toDate) throws ParseException;
     List<EnrollmentResponse> getTopNewestEnrollments();
+    InstructorStatisticsResponse getInstructorStatistics(String instructorId);
 }

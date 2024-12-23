@@ -195,4 +195,13 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findByTitleContainingOrDescriptionContaining(query, query);
     }
 
+    @Override
+    public List<CoursesListResponse> getAllCourses() {
+        List<Course> listCourses = courseRepository.findAll();
+        return listCourses.stream()
+                .map(courseMapper::toCourseListResponse)
+                .collect(Collectors.toList());
+    }
+
+
 }

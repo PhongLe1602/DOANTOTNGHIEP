@@ -63,10 +63,12 @@ public class ClassStudentServiceImpl implements ClassStudentService {
         classStudent.setStudent(user);
         classStudent.setStatus(ClassStudent.Status.valueOf("STUDYING"));
         classStudent.setJoinedDate(new Date());
+        courseClass.setCurrentStudentCount(courseClass.getCurrentStudentCount() + 1);
 
 //        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseClass.getCourse().getId());
         enrollment.setStatus(Enrollment.Status.valueOf("STUDYING"));
         enrollmentRepository.save(enrollment);
+        courseClassRepository.save(courseClass);
 
         return  classStudentRepository.save(classStudent);
     }

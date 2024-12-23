@@ -3,12 +3,12 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 
 import doan.ptit.programmingtrainingcenter.dto.response.CourseRevenueResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorStatisticsResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserStatisticsResponse;
+import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.mapper.EnrollmentMapper;
-import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
-import doan.ptit.programmingtrainingcenter.repository.PaymentRepository;
-import doan.ptit.programmingtrainingcenter.repository.UserRepository;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +19,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,6 +39,15 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     private EnrollmentMapper enrollmentMapper;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private CourseClassRepository courseClassRepository;
+
+    @Autowired
+    private AssignmentRepository assignmentRepository;
 
     @Override
     public UserStatisticsResponse getUserStatistics() {
@@ -89,6 +100,30 @@ public class StatisticsServiceImpl implements StatisticsService {
         return newestEnrollments.stream()
                 .map(enrollmentMapper::toResponse)
                 .toList();
+    }
+
+    @Override
+    public InstructorStatisticsResponse getInstructorStatistics(String instructorId) {
+        LocalDateTime now = LocalDateTime.now();
+        Date startDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(now.plusDays(7).atZone(ZoneId.systemDefault()).toInstant());
+
+        // Count schedules for the next 7 days
+        long weeklySchedules = scheduleRepository.countByInstructorAndDateRange(
+                instructorId, startDate, endDate);
+
+        // Count active course classes
+        long activeCourseClasses = courseClassRepository.countByInstructorIdAndStatus(
+                instructorId, CourseClass.Status.ACTIVE);
+
+        // Count total assignments
+        long totalAssignments = assignmentRepository.countByInstructorId(instructorId);
+
+        return InstructorStatisticsResponse.builder()
+                .totalSchedulesThisWeek(weeklySchedules)
+                .totalActiveCourseClasses(activeCourseClasses)
+                .totalAssignments(totalAssignments)
+                .build();
     }
 
 }

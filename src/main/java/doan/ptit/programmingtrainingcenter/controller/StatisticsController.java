@@ -3,15 +3,15 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 import doan.ptit.programmingtrainingcenter.dto.response.CourseRevenueResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.EnrollmentResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorStatisticsResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.UserStatisticsResponse;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
+import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -47,5 +47,10 @@ public class StatisticsController {
     public ResponseEntity<List<EnrollmentResponse>> getTop3NewestEnrollments() {
         List<EnrollmentResponse> newestEnrollments = statisticsService.getTopNewestEnrollments();
         return ResponseEntity.ok(newestEnrollments);
+    }
+    @GetMapping("/instructor")
+    public ResponseEntity<InstructorStatisticsResponse> getInstructorStatistics() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(statisticsService.getInstructorStatistics(currentUser.getId()));
     }
 }

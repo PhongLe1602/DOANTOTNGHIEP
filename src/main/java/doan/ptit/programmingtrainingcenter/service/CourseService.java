@@ -21,5 +21,6 @@ public interface CourseService {
     Boolean deleteCourse(String courseId);
     List<Course> getCourseByInstructor(String instructorId);
     List<Course> searchCourses(String query);
+    List<CoursesListResponse> getAllCourses();
 
 }

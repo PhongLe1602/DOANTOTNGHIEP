@@ -86,4 +86,9 @@ public class CourseController {
         return courseService.searchCourses(q);
     }
 
+    @GetMapping("/all")
+    public List<CoursesListResponse> getAll() {
+        return courseService.getAllCourses();
+    }
+
 }

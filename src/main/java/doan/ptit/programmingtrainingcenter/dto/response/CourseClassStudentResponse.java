@@ -1,16 +1,21 @@
 package doan.ptit.programmingtrainingcenter.dto.response;
 
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InstructorResponse {
-    String fullName;
-    String email;
-    String bio;
-    String profilePicture;
+public class CourseClassStudentResponse {
+    String id;
+    String name;
+    String courseName;
+    String instructorName;
+    List<UserResponse> listStudents;
+
 }

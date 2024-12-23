@@ -16,4 +16,5 @@ public interface AssignmentService {
     Assignment updateAssignment(String assignmentId ,AssignmentRequest assignmentRequest) throws IOException;
     void deleteAssignment(String assignmentId);
     List<Assignment> getAssignmentsOfStudent(String studentId);
+    List<Assignment> getAssignmentsOfInstructor(String instructorId);
 }

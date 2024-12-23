@@ -29,6 +29,8 @@ public class CoursesListResponse {
 
     int studentCount;
 
+    String description;
+
     CategoryResponse  category;
 
     List<InstructorResponse> instructors;

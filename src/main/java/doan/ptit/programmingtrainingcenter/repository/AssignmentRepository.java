@@ -17,4 +17,15 @@ public interface AssignmentRepository extends JpaRepository<Assignment, String> 
             "WHERE cs.student.id = :studentId")
     List<Assignment> findAssignmentsByStudentId(@Param("studentId") String studentId);
 
+
+
+    @Query("SELECT COUNT(a) FROM Assignment a " +
+            "WHERE a.courseClass.instructor.id = :instructorId")
+    long countByInstructorId(@Param("instructorId") String instructorId);
+
+    @Query("SELECT a FROM Assignment a " +
+            "WHERE a.courseClass.instructor.id = :instructorId")
+    List<Assignment> findAssignmentsByInstructorId(@Param("instructorId") String instructorId);
+
+
 }

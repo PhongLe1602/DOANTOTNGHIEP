@@ -107,6 +107,11 @@ public class AssignmentServiceImpl implements AssignmentService {
         return assignmentRepository.findAssignmentsByStudentId(studentId);
     }
 
+    @Override
+    public List<Assignment> getAssignmentsOfInstructor(String instructorId) {
+        return assignmentRepository.findAssignmentsByInstructorId(instructorId);
+    }
+
 
     private String uploadFileToCloudinary(MultipartFile file) throws IOException {
         String folderName = "programming-training-center-project/assignments"; // Thư mục đích trong Cloudinary

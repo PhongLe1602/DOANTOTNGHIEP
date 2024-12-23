@@ -34,6 +34,7 @@ public interface CourseMapper {
 
     @Mapping(source = "category", target = "category")
     @Mapping(source = "instructors", target = "instructors")
+    @Mapping(source = "description", target = "description")
     CoursesListResponse toCourseListResponse(Course course);
 
 }

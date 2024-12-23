@@ -6,16 +6,20 @@ import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.Role;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.mapper.UserMapper;
 import doan.ptit.programmingtrainingcenter.repository.RoleRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
+import doan.ptit.programmingtrainingcenter.service.EmailService;
+import doan.ptit.programmingtrainingcenter.service.JwtService;
 import doan.ptit.programmingtrainingcenter.service.UserService;
 import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
 import doan.ptit.programmingtrainingcenter.specification.SpecificationBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Service
@@ -46,6 +51,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
+    private JwtService jwtService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Value("${app.frontend.url}")
+    private String fondEndUrl;
+
     public Page<User> getAllUsers(List<SearchCriteria> criteriaList, Pageable pageable) {
         SpecificationBuilder<User> builder = new SpecificationBuilder<>();
         for (SearchCriteria criteria : criteriaList) {
@@ -61,23 +75,60 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser( UserRequest userRequest) {
-        if(userRepository.existsByEmail(userRequest.getEmail())) {
+    public User createUser(UserRequest userRequest) {
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email Already Exists");
         }
+
+        // Random password
+        String randomPassword = UUID.randomUUID().toString().substring(0, 8);
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        // Generate activation token
+        String token = jwtService.generateActivationToken(userRequest.getEmail());
+        String activationLink = fondEndUrl + "/activate-account?token=" + token;
+
+        // Map UserRequest to User
         User user = userMapper.toUser(userRequest);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
-            try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
-                user.setProfilePicture((String) uploadResult.get("url")); // Cập nhật URL của profilePicture
-            } catch (Exception e) {
-                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
-            }
+        user.setPassword(passwordEncoder.encode(randomPassword)); // Set random password
+        user.setIsLocked(false);
+        user.setIsEnabled(false);
+
+//        // Upload profile picture to Cloudinary
+//        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
+//            try {
+//                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
+//                user.setProfilePicture((String) uploadResult.get("url"));
+//            } catch (Exception e) {
+//                throw new RuntimeException("Error uploading profile picture to Cloudinary", e);
+//            }
+//        }
+
+        // Assign roles
+        List<Role> roles = roleRepository.findAllByIdIn(userRequest.getRoleIds());
+        System.out.println(userRequest.getRoleIds());
+        if (roles.isEmpty()) {
+            throw new RuntimeException("Invalid role IDs provided");
         }
-        return userRepository.save(user);
+        user.setRoles(roles);
+
+        // Save user
+        User savedUser = userRepository.save(user);
+
+        // Send activation email with temporary password
+        emailService.sendEmail(
+                user.getEmail(),
+                "Activate your account",
+                String.format(
+                        "Welcome! Your temporary password is: %s\nPlease click the following link to activate your account: %s",
+                        randomPassword,
+                        activationLink
+                )
+        );
+
+        return savedUser;
     }
+
 
     @Override
     public User updateUser(String id , UserRequest userRequest) {
@@ -86,14 +137,14 @@ public class UserServiceImpl implements UserService {
         userEntity.setIsEnabled(true);
         userEntity.setIsLocked(false);
 
-        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
-            try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
-                userEntity.setProfilePicture((String) uploadResult.get("url")); // Cập nhật URL của profilePicture
-            } catch (Exception e) {
-                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
-            }
-        }
+//        if (userRequest.getProfilePicture() != null && !userRequest.getProfilePicture().isEmpty()) {
+//            try {
+//                Map<?, ?> uploadResult = cloudinary.uploader().upload(userRequest.getProfilePicture().getBytes(), ObjectUtils.emptyMap());
+//                userEntity.setProfilePicture((String) uploadResult.get("url")); // Cập nhật URL của profilePicture
+//            } catch (Exception e) {
+//                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary", e);
+//            }
+//        }
 
         return userRepository.save(userEntity);
 
@@ -203,6 +254,12 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         return userMapper.toProfileUserResponse(user);
+    }
+
+    @Override
+    public List<InstructorResponse> getAllInstructors() {
+       List<User> listUser = userRepository.findAllTeachers();
+       return userMapper.toListInstructorResponse(listUser);
     }
 
 

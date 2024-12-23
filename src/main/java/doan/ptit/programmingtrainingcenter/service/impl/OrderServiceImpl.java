@@ -56,21 +56,58 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private HttpServletRequest request;
 
+    @Autowired
+    private PaymentRepository paymentRepository;
+
     @Override
-    public Order addOrder(OrderRequest orderRequest) {
+    @Transactional
+    public OrderResponse addOrder(OrderRequest orderRequest) {
         User user = getUser(orderRequest.getUserId());
         PaymentMethod paymentMethod = getPaymentMethod(orderRequest.getPaymentMethodId());
 
+        // Tạo Order và các OrderItem
         Order order = createOrder(orderRequest, user, paymentMethod);
         List<OrderItem> orderItems = createOrderItems(orderRequest, order);
 
+        // Tính tổng số tiền và lưu Order
         setOrderTotalAmount(order, orderItems);
-        orderRepository.save(order);
+        Order saveOrdered = orderRepository.save(order);
 
+        // Tạo Payment cho Order
+        Payment payment = createPayment(saveOrdered, paymentMethod);
         createEnrollments(user, orderItems);
+        paymentService.createPayment(saveOrdered, saveOrdered.getTotalAmount(), paymentMethod.getId());
+        // Nếu phương thức thanh toán là VNPay
+        if ("VNPAY".equalsIgnoreCase(paymentMethod.getCode())) {
+            // Tạo đường dẫn thanh toán VNPay
+            String paymentUrl = generateVnpayPaymentUrl(saveOrdered, request);
 
-        paymentService.createPayment(order, order.getTotalAmount(), paymentMethod.getId());
-        return order;
+            // Trả về OrderResponse với paymentUrl
+            return OrderResponse.builder()
+                    .order(saveOrdered)
+                    .paymentUrl(paymentUrl)
+                    .build();
+        }
+
+        // Nếu thanh toán trực tiếp
+        payment.setStatus(Payment.PaymentStatus.COMPLETED); // Cập nhật trạng thái Payment
+        saveOrdered.setStatus(Order.OrderStatus.COMPLETED);
+        paymentRepository.save(payment);
+        orderRepository.save(saveOrdered);
+
+
+        // Tạo Enrollment với trạng thái ACTIVE
+        createEnrollmentsWithActiveStatus(user, orderItems);
+
+        for (OrderItem orderItem : orderItems) {
+            Course course = orderItem.getCourse();
+            course.setStudentCount(course.getStudentCount() + 1);
+            courseRepository.save(course);
+        }
+        // Trả về thông tin Order
+        return OrderResponse.builder()
+                .order(saveOrdered)
+                .build();
     }
 
     @Override
@@ -112,7 +149,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Lưu Order
         Order savedOrder = orderRepository.save(order);
-
+        createEnrollments(cart.getUser(), orderItems);
         paymentService.createPayment(savedOrder, savedOrder.getTotalAmount(), paymentMethod.getId());
         // Xóa giỏ hàng sau khi đã tạo Order
         cartRepository.delete(cart);
@@ -122,6 +159,11 @@ public class OrderServiceImpl implements OrderService {
                     .order(savedOrder)
                     .paymentUrl(paymentUrl)
                     .build();
+        }
+        for (OrderItem orderItem : orderItems) {
+            Course course = orderItem.getCourse();
+            course.setStudentCount(course.getStudentCount() + 1);
+            courseRepository.save(course);
         }
 
         return OrderResponse.builder()
@@ -178,6 +220,11 @@ public class OrderServiceImpl implements OrderService {
                     .paymentUrl(paymentUrl)
                     .build();
         }
+
+
+        course.setStudentCount(course.getStudentCount() + 1);
+        courseRepository.save(course);
+
 
         // Nếu không sử dụng VNPay, trả về thông tin Order
         return OrderResponse.builder()
@@ -253,7 +300,10 @@ public class OrderServiceImpl implements OrderService {
         vnpParams.put("vnp_Command", command);
         vnpParams.put("vnp_TmnCode", VNPayConfig.getVnpTmnCode());
 
-        BigDecimal totalAmount = order.getTotalAmount().setScale(0, RoundingMode.DOWN); // Loại bỏ phần thập phân
+        BigDecimal totalAmount = order.getTotalAmount()
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(0, RoundingMode.DOWN);
+
         vnpParams.put("vnp_Amount", totalAmount.toString());
         vnpParams.put("vnp_CurrCode", currCode);
         vnpParams.put("vnp_BankCode", "NCB");
@@ -302,7 +352,29 @@ public class OrderServiceImpl implements OrderService {
         return VNPayConfig.getVnpPayUrl() + "?" + query.toString();
     }
 
+    private void createEnrollmentsWithActiveStatus(User user, List<OrderItem> orderItems) {
+        orderItems.forEach(orderItem -> {
+            Enrollment enrollment = Enrollment.builder()
+                    .user(user)
+                    .course(orderItem.getCourse())
+                    .orderItem(orderItem)
+                    .status(Enrollment.Status.ACTIVE) // Trạng thái ACTIVE
+                    .progress(BigDecimal.ZERO)
+                    .enrollmentDate(new Date())
+                    .build();
+            enrollmentRepository.save(enrollment);
+        });
+    }
 
+    private Payment createPayment(Order order, PaymentMethod paymentMethod) {
+        return Payment.builder()
+                .order(order)
+                .paymentMethod(paymentMethod)
+                .amount(order.getTotalAmount())
+                .status(Payment.PaymentStatus.PENDING) // Mặc định là PENDING
+                .createdAt(new Date())
+                .build();
+    }
     
 
 

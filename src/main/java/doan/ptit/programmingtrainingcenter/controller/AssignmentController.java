@@ -56,4 +56,10 @@ public class AssignmentController {
         List<Assignment> assignments = assignmentService.getAssignmentsOfStudent(currentUser.getId());
         return ResponseEntity.ok(assignments);
     }
+    @GetMapping("/instructor")
+    public ResponseEntity<List<Assignment>> getAssignments() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Assignment> assignments = assignmentService.getAssignmentsOfInstructor(currentUser.getId());
+        return ResponseEntity.ok(assignments);
+    }
 }

@@ -18,4 +18,17 @@ public interface CourseClassRepository extends JpaRepository<CourseClass,String>
     List<User> findUsersByClassId(@Param("classId") String classId);
 
     List<CourseClass> findByInstructorId(@Param("instructorId") String instructorId);
+
+    @Query("SELECT COUNT(cc) FROM CourseClass cc " +
+            "WHERE cc.instructor.id = :instructorId AND cc.status = :status")
+    long countByInstructorIdAndStatus(
+            @Param("instructorId") String instructorId,
+            @Param("status") CourseClass.Status status
+    );
+
+
+    @Query("SELECT cs.courseClass FROM ClassStudent cs WHERE cs.student.id = :studentId")
+    List<CourseClass> findClassesByStudentId(@Param("studentId") String studentId);
+
+
 }
