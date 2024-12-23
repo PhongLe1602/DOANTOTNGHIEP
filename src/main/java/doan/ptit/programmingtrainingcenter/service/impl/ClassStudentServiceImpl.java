@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class ClassStudentServiceImpl implements ClassStudentService {
@@ -39,14 +40,35 @@ public class ClassStudentServiceImpl implements ClassStudentService {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RuntimeException("User Not Found"));
 
+        Optional<ClassStudent> existingClassStudent = classStudentRepository.findByCourseClassIdAndStudentId(
+                classStudentRequest.getClassId(), userId);
+
+        if (existingClassStudent.isPresent()) {
+            throw new RuntimeException("Student already enrolled in this class");
+        }
+
+
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseClass.getCourse().getId());
+
+        if (enrollment == null) {
+            throw new RuntimeException("User has not enrolled in the course");
+        }
+
+
+        if (!Enrollment.Status.ACTIVE.equals(enrollment.getStatus())) {
+            throw new RuntimeException("User's enrollment is not active");
+        }
+
         classStudent.setCourseClass(courseClass);
         classStudent.setStudent(user);
         classStudent.setStatus(ClassStudent.Status.valueOf("STUDYING"));
         classStudent.setJoinedDate(new Date());
+        courseClass.setCurrentStudentCount(courseClass.getCurrentStudentCount() + 1);
 
-        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseClass.getCourse().getId());
+//        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseClass.getCourse().getId());
         enrollment.setStatus(Enrollment.Status.valueOf("STUDYING"));
         enrollmentRepository.save(enrollment);
+        courseClassRepository.save(courseClass);
 
         return  classStudentRepository.save(classStudent);
     }

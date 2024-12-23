@@ -13,7 +13,6 @@ public interface OrderMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
-    @Mapping(target = "paymentMethod", source = "paymentMethod")
     @Mapping(target = "status", constant = "PENDING")
     @Mapping(target = "paymentStatus", constant = "PENDING")
     @Mapping(target = "totalAmount", ignore = true)  // Sẽ tính tổng sau

@@ -6,7 +6,9 @@ import doan.ptit.programmingtrainingcenter.dto.request.RegisterRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.SignInRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.AuthResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.TokenResponse;
+import doan.ptit.programmingtrainingcenter.entity.Role;
 import doan.ptit.programmingtrainingcenter.entity.User;
+import doan.ptit.programmingtrainingcenter.repository.RoleRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetailsService;
@@ -30,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +48,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final RoleRepository roleRepository;
 
     @Value("${app.frontend.url}")
     private String fondEndUrl;
@@ -100,6 +104,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
+        Role studentRole = roleRepository.findByName("STUDENT")
+                .orElseThrow(() -> new RuntimeException("Role STUDENT not found"));
         String token = jwtService.generateActivationToken(registerRequest.getEmail());
 
         String activationLink = fondEndUrl + "/activate-account?token=" + token;
@@ -112,6 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setIsLocked(false);
         user.setIsEnabled(false);
+        user.setRoles(Collections.singletonList(studentRole));
         userRepository.save(user);
         emailService.sendEmail(user.getEmail(),"Activate your account","Please click the following link to activate your account: " + activationLink);
         return AuthResponse.builder()

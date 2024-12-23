@@ -12,7 +12,7 @@ import java.util.List;
 
 @Service
 public interface OrderService {
-    Order addOrder(OrderRequest orderRequest);
+    OrderResponse addOrder(OrderRequest orderRequest);
     List<Order> getOrders();
     Order getOrderById(String id);
     OrderResponse checkout(String userId, OrderCheckOutRequest orderCheckOutRequest);

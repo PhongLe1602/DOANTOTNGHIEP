@@ -1,6 +1,7 @@
 package doan.ptit.programmingtrainingcenter.dto.request;
 
-
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -11,18 +12,18 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRequest {
+    @NotEmpty
     String fullName;
 
+    @NotEmpty
     String email;
-
-    @Size(min = 6 , message = "PASSWORD_INVALID")
-    String password;
 
     String gender;
 
@@ -33,8 +34,10 @@ public class UserRequest {
 
     String address;
 
-    MultipartFile profilePicture;
+//    MultipartFile profilePicture;
 
     String bio;
 
+    @NotNull
+    List<String> roleIds;
 }

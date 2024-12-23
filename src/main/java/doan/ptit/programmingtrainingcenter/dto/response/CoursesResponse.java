@@ -47,7 +47,7 @@ public class CoursesResponse {
 
     List<SectionResponse> sectionList;
 
-    List<User> instructorList;
+    List<InstructorResponse> instructorList;
 
     Date createdAt;
 

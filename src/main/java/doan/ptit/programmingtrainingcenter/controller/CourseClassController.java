@@ -57,5 +57,11 @@ public class CourseClassController {
                 .getContext().getAuthentication().getPrincipal();
         return courseClassService.getClassByInstructorId(currentUser.getId());
     }
+    @GetMapping("/student")
+    public List<CourseClass> getClassStudent() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return courseClassService.getClassesByStudentId(currentUser.getId());
+    }
 
 }

@@ -2,11 +2,15 @@ package doan.ptit.programmingtrainingcenter.mapper;
 
 import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.UserResponse;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -43,4 +47,10 @@ public interface UserMapper {
     @Mapping(target = "profilePicture", ignore = true)
     void updateProfileUser(@MappingTarget User user , ProfileUserRequest profileUserRequest);
 
+
+    @Mapping(target = "name", source = "fullName")
+    UserResponse toUserResponse(User user);
+
+
+    List<InstructorResponse> toListInstructorResponse(List<User> listUser);
 }

@@ -5,10 +5,7 @@ import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
-import doan.ptit.programmingtrainingcenter.dto.response.ApiPageResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.ApiResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.*;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
@@ -80,7 +77,7 @@ public class UserController {
         return userService.getUserById(id);
     }
     @PostMapping
-    User createUser(@ModelAttribute UserRequest userRequest) {
+    User createUser(@RequestBody UserRequest userRequest) {
         return userService.createUser(userRequest);
     }
     @PutMapping("/{id}")
@@ -117,7 +114,7 @@ public class UserController {
 
     @PostMapping("/role")
     public boolean addRole(@RequestBody UserRoleRequest userRoleRequest) {
-        userService.addRole(userRoleRequest);
+        userService.assignRole(userRoleRequest);
         return true;
     }
     @DeleteMapping("/{userId}/role/{roleId}")
@@ -140,6 +137,11 @@ public class UserController {
     public ProfileUserResponse updateUserProfile(@RequestBody ProfileUserRequest profileUserRequest) {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userService.updateProfile(currentUser.getId(), profileUserRequest);
+    }
+
+    @GetMapping("/home/instructors")
+    public List<InstructorResponse> getInstructors() {
+        return userService.getAllInstructors();
     }
 
 }

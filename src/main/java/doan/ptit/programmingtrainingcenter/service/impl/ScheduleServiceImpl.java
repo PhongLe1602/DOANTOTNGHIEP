@@ -116,6 +116,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleMapper.toResponseList(schedules);
     }
 
+    @Override
+    public List<ScheduleResponse> getSchedulesByInstructor(String instructorId) {
+        List<Schedule> schedules = scheduleRepository.findSchedulesByInstructorId(instructorId);
+        return scheduleMapper.toResponseList(schedules);
+    }
+
+
 
     private List<LocalDate> getRepeatDates(LocalDate startDate, LocalDate endDate, List<Integer> daysOfWeek) {
         List<LocalDate> repeatDates = new ArrayList<>();

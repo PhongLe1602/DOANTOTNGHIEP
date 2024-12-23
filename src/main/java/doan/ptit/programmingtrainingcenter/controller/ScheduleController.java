@@ -48,4 +48,9 @@ public class ScheduleController {
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return scheduleService.getSchedulesByUser(currentUser.getId());
     }
+    @GetMapping("/instructor")
+    public List<ScheduleResponse> instructorSchedules() {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return scheduleService.getSchedulesByInstructor(currentUser.getId());
+    }
 }

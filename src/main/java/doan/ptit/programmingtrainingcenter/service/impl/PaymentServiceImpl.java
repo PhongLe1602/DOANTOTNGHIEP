@@ -1,13 +1,7 @@
 package doan.ptit.programmingtrainingcenter.service.impl;
 
-import doan.ptit.programmingtrainingcenter.entity.Enrollment;
-import doan.ptit.programmingtrainingcenter.entity.Order;
-import doan.ptit.programmingtrainingcenter.entity.OrderItem;
-import doan.ptit.programmingtrainingcenter.entity.Payment;
-import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
-import doan.ptit.programmingtrainingcenter.repository.OrderRepository;
-import doan.ptit.programmingtrainingcenter.repository.PaymentMethodRepository;
-import doan.ptit.programmingtrainingcenter.repository.PaymentRepository;
+import doan.ptit.programmingtrainingcenter.entity.*;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +26,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
     public Payment createPayment(Order order, BigDecimal amount, String paymentMethodId) {
         Payment payment = Payment.builder()
                 .order(order)
@@ -41,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(Payment.PaymentStatus.valueOf("PENDING"))
                 .createdAt(new Date())
                 .build();
-
+//        order.setStatus(Order.OrderStatus.COMPLETED);
         return paymentRepository.save(payment);
     }
     @Override
@@ -124,11 +121,18 @@ public class PaymentServiceImpl implements PaymentService {
         for (OrderItem orderItem : orderItems) {
             List<Enrollment> enrollments = enrollmentRepository.findByOrderItem(orderItem);
             enrollments.forEach(enrollment -> {
+                // Cập nhật trạng thái Enrollment
                 enrollment.setStatus(Enrollment.Status.ACTIVE);
                 enrollmentRepository.save(enrollment);
+
+                // Tăng số lượng học viên của khóa học
+                Course course = orderItem.getCourse();
+                course.setStudentCount(course.getStudentCount() + 1);
+                courseRepository.save(course); // Lưu cập nhật vào DB
             });
         }
     }
+
 
     private void updateOrderStatus(Order order, Payment.PaymentStatus paymentStatus) {
         if (paymentStatus == Payment.PaymentStatus.COMPLETED) {

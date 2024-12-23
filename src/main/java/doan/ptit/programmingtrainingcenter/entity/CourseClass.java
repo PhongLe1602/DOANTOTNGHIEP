@@ -44,6 +44,10 @@ public class CourseClass {
     @Column(name = "study_days", nullable = false, length = 50)
     String studyDays;
 
+    @Column(name = "current_student_count", nullable = false, columnDefinition = "INT DEFAULT 0")
+    int currentStudentCount;
+
+
     @Column(name = "max_students", columnDefinition = "INT DEFAULT 30")
     int maxStudents;
 

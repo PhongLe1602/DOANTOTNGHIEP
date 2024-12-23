@@ -4,6 +4,7 @@ import doan.ptit.programmingtrainingcenter.dto.request.BlockUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ProfileUserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.UserRoleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ProfileUserResponse;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
@@ -24,13 +25,15 @@ public interface UserService {
     void updateUserAvatar(String id, String avatarUrl);
     List<User> getAllStudents();
     List<User> getAllTeachers();
-    void addRole(UserRoleRequest userRoleRequest);
+    void assignRole(UserRoleRequest userRoleRequest);
     void deleteRole(String userId,String roleId);
     Boolean blockUser(BlockUserRequest blockUserRequest);
 
     ProfileUserResponse getProfile(String userId);
 
     ProfileUserResponse updateProfile(String userid , ProfileUserRequest profileUserRequest);
+
+    List<InstructorResponse> getAllInstructors();
     
 
 

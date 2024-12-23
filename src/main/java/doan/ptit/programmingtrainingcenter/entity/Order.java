@@ -30,9 +30,6 @@ public class Order {
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "FK_order_user_id"), nullable = false)
     User user;
 
-    @ManyToOne
-    @JoinColumn(name = "payment_method_id", foreignKey = @ForeignKey(name = "FK_order_payment_method_id"), nullable = false)
-    PaymentMethod paymentMethod;
 
     @Column(name = "total_amount", nullable = false)
     BigDecimal totalAmount;

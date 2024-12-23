@@ -18,4 +18,5 @@ public interface ScheduleService {
     List<Schedule> createRecurringSchedules(RecurringScheduleRequest request);
     List<Schedule> getAllSchedules();
     List<ScheduleResponse> getSchedulesByUser(String userId);
+    List<ScheduleResponse> getSchedulesByInstructor(String instructorId);
 }

@@ -25,7 +25,7 @@ public class OrderController {
     private JwtService jwtService;
 
     @PostMapping
-    Order addOrder(@RequestBody OrderRequest orderRequest) {
+    OrderResponse addOrder(@RequestBody OrderRequest orderRequest) {
         return orderService.addOrder(orderRequest);
     }
     @GetMapping("/users")

@@ -91,5 +91,10 @@ public class CourseClassServiceImpl implements CourseClassService {
         return classRepository.findByInstructorId(instructorId);
     }
 
+    @Override
+    public List<CourseClass> getClassesByStudentId(String studentId) {
+        return classRepository.findClassesByStudentId(studentId);
+    }
+
 
 }

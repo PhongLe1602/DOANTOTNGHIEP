@@ -34,14 +34,14 @@ public class CartServiceImpl implements CartService {
     private UserRepository userRepository;
 
     @Transactional
-    public Cart addCourseToCart(CartRequest cartRequest) {
-        User user = userRepository.findById(cartRequest.getUserId())
+    public Cart addCourseToCart(String userId , CartRequest cartRequest) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Course course = courseRepository.findById(cartRequest.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
-        Cart cart = cartRepository.findByUserId(cartRequest.getUserId())
+        Cart cart = cartRepository.findByUserId(userId)
                 .orElse(new Cart(user, BigDecimal.ZERO));
 
 
@@ -50,17 +50,13 @@ public class CartServiceImpl implements CartService {
                 .findFirst();
 
         if (existingCartItem.isPresent()) {
-            // Nếu đã tồn tại, tăng số lượng
-            CartItem cartItem = existingCartItem.get();
-            cartItem.setQuantity(cartItem.getQuantity() + cartRequest.getQuantity());
-            cartItem.setPrice(course.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            throw new RuntimeException("Course already exists in the cart");
         } else {
             // Nếu chưa tồn tại, tạo mới CartItem
             CartItem newCartItem = CartItem.builder()
                     .cart(cart)
                     .course(course)
-                    .quantity(cartRequest.getQuantity())
-                    .price(course.getPrice().multiply(BigDecimal.valueOf(cartRequest.getQuantity())))
+                    .price(course.getPrice())
                     .build();
             cart.addCartItem(newCartItem);
         }
@@ -77,4 +73,33 @@ public class CartServiceImpl implements CartService {
     public Optional<Cart> getCart(String userId) {
         return cartRepository.findByUserId(userId);
     }
+
+
+    @Override
+    public void deleteCart(String userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+        cartItemRepository.deleteAll(cart.getCartItems());
+        cartRepository.delete(cart);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCartItem(String userId, String cartItemId) {
+        CartItem  cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new RuntimeException("CartItem not found"));
+
+        Cart cart = cartItem.getCart();
+        cart.setTotalAmount(cart.getTotalAmount().subtract(cartItem.getPrice()));
+        cart.getCartItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
+        if (cart.getCartItems().isEmpty()) {
+            cartRepository.delete(cart);
+        } else {
+            cartRepository.save(cart);
+        }
+
+    }
+
+
 }

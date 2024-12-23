@@ -22,4 +22,11 @@ public interface UserRepository extends JpaRepository<User, String> , JpaSpecifi
     // Tìm tất cả người dùng có vai trò là giảng viên
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = 'INSTRUCTOR'")
     List<User> findAllTeachers();
+
+
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = 'STUDENT'")
+    long countStudents();
+
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = 'INSTRUCTOR'")
+    long countInstructors();
 }

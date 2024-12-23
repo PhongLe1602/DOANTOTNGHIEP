@@ -4,10 +4,12 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.CategoryResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.CoursesListResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.SectionResponse;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
+import doan.ptit.programmingtrainingcenter.mapper.CourseMapper;
 import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
@@ -44,6 +46,9 @@ public class CourseServiceImpl implements CourseService {
     private SectionMapper sectionMapper;
 
     @Autowired
+    private CourseMapper courseMapper;
+
+    @Autowired
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
@@ -61,25 +66,13 @@ public class CourseServiceImpl implements CourseService {
         List<Section> sectionList = sectionRepository.findByCourseId(id);
         CategoryResponse categoryResponse = categoryMapper.toCategoryResponse(course.getCategory());
         List<SectionResponse> sectionResponseList = sectionMapper.toDtoList(sectionList);
-        return CoursesResponse.builder()
-                .id(course.getId())
-                .title(course.getTitle())
-                .category(categoryResponse)
-                .level(course.getLevel())
-                .description(course.getDescription())
-                .price(course.getPrice())
-                .studentCount(course.getStudentCount())
-                .duration(course.getDuration())
-                .thumbnail(course.getThumbnail())
-                .sectionList(sectionResponseList)
-                .instructorList(course.getInstructors())
-                .createdAt(course.getCreatedAt())
-                .updatedAt(course.getUpdatedAt())
-                .build();
+        CoursesResponse coursesResponse = courseMapper.toCoursesResponse(course);
+        coursesResponse.setSectionList(sectionResponseList);
+        return coursesResponse;
     }
 
     @Override
-    public Page<Course> getCourses(int page, int size, String sortBy,String sortDirection ,List<SearchCriteria> filters) {
+    public Page<CoursesListResponse> getCourses(int page, int size, String sortBy, String sortDirection , List<SearchCriteria> filters) {
         Sort sort = sortDirection.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
@@ -93,7 +86,9 @@ public class CourseServiceImpl implements CourseService {
 
         Specification<Course> specification = builder.build();
 
-        return courseRepository.findAll(specification,pageable);
+        Page<Course> coursesPage = courseRepository.findAll(specification, pageable);
+
+        return coursesPage.map(course -> courseMapper.toCourseListResponse(course));
     }
 
     @Override
@@ -199,5 +194,14 @@ public class CourseServiceImpl implements CourseService {
     public List<Course> searchCourses(String query) {
         return courseRepository.findByTitleContainingOrDescriptionContaining(query, query);
     }
+
+    @Override
+    public List<CoursesListResponse> getAllCourses() {
+        List<Course> listCourses = courseRepository.findAll();
+        return listCourses.stream()
+                .map(courseMapper::toCourseListResponse)
+                .collect(Collectors.toList());
+    }
+
 
 }

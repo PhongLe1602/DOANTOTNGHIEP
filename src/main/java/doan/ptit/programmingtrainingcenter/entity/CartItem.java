@@ -33,9 +33,6 @@ public class CartItem {
     Course course;
 
     @Column(nullable = false)
-    Integer quantity;
-
-    @Column(nullable = false)
     BigDecimal price;
 
     @CreationTimestamp

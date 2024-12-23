@@ -13,6 +13,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserNotificationResponse {
-    private UserResponse user;
     private List<NotificationRecipientResponse> notifications;
 }
