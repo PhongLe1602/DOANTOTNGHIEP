@@ -19,5 +19,6 @@ public interface CourseRepository extends JpaRepository<Course, String> , JpaSpe
 
 
     List<Course> findByTitleContainingOrDescriptionContaining(String title, String description);
+    long count();
 
 }

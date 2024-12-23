@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.EnrollmentRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.StudentEnrollmentResponse;
 import doan.ptit.programmingtrainingcenter.entity.Enrollment;
 import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,10 @@ public class EnrollmentController {
     public ResponseEntity<Boolean> checkEnrollment(@RequestParam String userId, @RequestParam String courseId) {
         boolean isEnrolled = enrollmentService.checkEnrollment(userId, courseId);
         return ResponseEntity.ok(isEnrolled);
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<List<StudentEnrollmentResponse>> getAllStudentEnrollments() {
+        return ResponseEntity.ok(enrollmentService.getAllStudentEnrollments());
     }
 }

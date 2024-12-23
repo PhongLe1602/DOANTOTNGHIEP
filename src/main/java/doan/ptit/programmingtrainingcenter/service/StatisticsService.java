@@ -19,4 +19,6 @@ public interface StatisticsService {
     List<CourseRevenueResponse> getRevenueByCourse(String fromDate, String toDate) throws ParseException;
     List<EnrollmentResponse> getTopNewestEnrollments();
     InstructorStatisticsResponse getInstructorStatistics(String instructorId);
+    BigDecimal totalRevenue();
+    long totalCourse();
 }

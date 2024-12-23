@@ -28,4 +28,8 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
         GROUP BY oi.course.id, c.title
     """)
     List<Object[]> calculateRevenueByCourse(@Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
+
+    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.status = 'COMPLETED'")
+    BigDecimal calculateTotalRevenue();
+
 }

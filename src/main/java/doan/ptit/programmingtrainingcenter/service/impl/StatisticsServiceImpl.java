@@ -49,6 +49,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Autowired
     private AssignmentRepository assignmentRepository;
 
+    @Autowired
+    private CourseRepository courseRepository;
+
     @Override
     public UserStatisticsResponse getUserStatistics() {
         long totalStudents = userRepository.countStudents();
@@ -124,6 +127,16 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .totalActiveCourseClasses(activeCourseClasses)
                 .totalAssignments(totalAssignments)
                 .build();
+    }
+
+    @Override
+    public BigDecimal totalRevenue() {
+        return paymentRepository.calculateTotalRevenue();
+    }
+
+    @Override
+    public long totalCourse() {
+        return courseRepository.count();
     }
 
 }
