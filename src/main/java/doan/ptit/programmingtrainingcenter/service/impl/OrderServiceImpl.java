@@ -5,12 +5,17 @@ import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutNowRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderCheckOutRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.OrderRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.OrderResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.OrderMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.OrderService;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -231,6 +236,53 @@ public class OrderServiceImpl implements OrderService {
                 .order(savedOrder)
                 .build();
     }
+
+    @Override
+    public Page<Order> getOrdersWithFilters(String customerName, String orderCode, String status, Date startDate, Date endDate, Pageable pageable) {
+        Specification<Order> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Tìm kiếm theo tên người đặt hàng
+            if (customerName != null && !customerName.isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("user").get("fullName")),
+                        "%" + customerName.toLowerCase() + "%"
+                ));
+            }
+
+            // Tìm kiếm theo mã đơn hàng
+            if (orderCode != null && !orderCode.isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        root.get("id"),
+                        "%" + orderCode + "%"
+                ));
+            }
+
+            // Lọc theo trạng thái đơn hàng
+            if (status != null && !status.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), Order.OrderStatus.valueOf(status)));
+            }
+
+            // Lọc theo ngày tạo (createdAt)
+            if (startDate != null && endDate != null) {
+                predicates.add(criteriaBuilder.between(root.get("createdAt"), startDate, endDate));
+            }
+
+            // Nếu chỉ có ngày bắt đầu hoặc ngày kết thúc, bạn có thể thêm các điều kiện khác như:
+            if (startDate != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), startDate));
+            }
+
+            if (endDate != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), endDate));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return orderRepository.findAll(specification, pageable);
+    }
+
 
 
     // Helper method to get User entity

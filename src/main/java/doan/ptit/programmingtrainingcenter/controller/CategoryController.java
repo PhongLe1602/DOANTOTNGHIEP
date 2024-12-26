@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CategoryRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.SimpleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Category;
 import doan.ptit.programmingtrainingcenter.service.CategoryService;
@@ -36,5 +37,14 @@ public class CategoryController {
     public SimpleResponse deleteCategory(@PathVariable String id) {
         categoryService.deleteCategory(id);
         return SimpleResponse.success("Xóa thành công danh mục");
+    }
+    @GetMapping("/all")
+    public PagedResponse<Category> getCategories(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "type", required = false) Category.CategoryType type,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        return categoryService.getCategoriesWithPaginationAndFilters(name, type, page, size);
     }
 }

@@ -27,4 +27,14 @@ public class SectionController {
     List<Section> getSectionByCourseId(@PathVariable String courseId) {
         return sectionService.getSectionsByCourses(courseId);
     }
+
+    @PutMapping("/{sectionId}")
+    public Section updateSection(@PathVariable String sectionId, @RequestBody SectionRequest sectionRequest) {
+        return sectionService.updateSection(sectionId, sectionRequest);
+    }
+
+    @DeleteMapping("/{sectionId}")
+    public void deleteSection(@PathVariable String sectionId) {
+        sectionService.deleteSection(sectionId);
+    }
 }

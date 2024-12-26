@@ -3,10 +3,15 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.PaymentService;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -84,13 +89,50 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findAll();
     }
 
+    @Override
+    public Page<Payment> getPaymentsWithFilters(String status, String orderId, Date fromDate, Date toDate, Pageable pageable) {
+        Specification<Payment> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-    public Payment updatePaymentStatus(String orderId, Payment.PaymentStatus newStatus) {
-        Payment payment = paymentRepository.findByOrderId(orderId);
+            if (status != null && !status.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), Payment.PaymentStatus.valueOf(status)));
+            }
+
+            if (orderId != null && !orderId.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("order").get("id"), orderId));
+            }
+
+            if (fromDate != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), fromDate));
+            }
+
+            if (toDate != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), toDate));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return paymentRepository.findAll(specification, pageable);
+    }
 
 
+    public Payment updatePaymentStatus(String paymentId, Payment.PaymentStatus newStatus) {
+        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment  Not Found"));
+
+        Order order = payment.getOrder();
+
+        order.setStatus(Order.OrderStatus.COMPLETED);
+
+        orderRepository.save(order);
 
         payment.setStatus(newStatus);
+        // Lấy mã giao dịch lớn nhất hiện có
+        String lastTransactionCode = paymentRepository.findMaxTransactionCode();
+        int nextTransactionNumber = (lastTransactionCode != null && lastTransactionCode.matches("\\d+"))
+                ? Integer.parseInt(lastTransactionCode) + 1
+                : 1; // Nếu không có mã hoặc không hợp lệ, bắt đầu từ 1
+        payment.setTransactionCode(String.format("TTT%05d", nextTransactionNumber));
 
         if (newStatus == Payment.PaymentStatus.COMPLETED || newStatus == Payment.PaymentStatus.FAILED) {
             payment.setCompletedAt(new Date());

@@ -4,6 +4,7 @@ import doan.ptit.programmingtrainingcenter.dto.request.SectionRequest;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.Section;
 import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
+import doan.ptit.programmingtrainingcenter.repository.LessonRepository;
 import doan.ptit.programmingtrainingcenter.repository.SectionRepository;
 import doan.ptit.programmingtrainingcenter.service.SectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ public class SectionServiceImpl implements SectionService {
 
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private LessonRepository lessonRepository;
     @Override
     public List<Section> getSections() {
         return sectionRepository.findAll();
@@ -40,4 +44,36 @@ public class SectionServiceImpl implements SectionService {
     public List<Section> getSectionsByCourses(String courseId) {
         return sectionRepository.findByCourseId(courseId);
     }
+
+    @Override
+    public Section updateSection(String sectionId, SectionRequest sectionRequest) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new RuntimeException("Section không tồn tại"));
+
+        section.setTitle(sectionRequest.getTitle());
+        section.setDescription(sectionRequest.getDescription());
+
+        // Cập nhật khóa học nếu cần thay đổi
+        if (sectionRequest.getCourseId() != null) {
+            Course course = courseRepository.findById(sectionRequest.getCourseId())
+                    .orElseThrow(() -> new RuntimeException("Khóa học không tồn tại"));
+            section.setCourse(course);
+        }
+
+        return sectionRepository.save(section);
+    }
+
+    @Override
+    public void deleteSection(String sectionId) {
+        Section section = sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new RuntimeException("Section không tồn tại"));
+
+        // Xóa các bài học liên quan nếu cần
+        if (section.getLessons() != null && !section.getLessons().isEmpty()) {
+            lessonRepository.deleteAll(section.getLessons());
+        }
+
+        sectionRepository.delete(section);
+    }
+
 }

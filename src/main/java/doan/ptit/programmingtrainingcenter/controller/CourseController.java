@@ -27,25 +27,33 @@ public class CourseController {
 
 
     @GetMapping
-    public ApiResponse<PagedResponse<CoursesListResponse>>  getCourses(
+    public ApiResponse<PagedResponse<CoursesListResponse>> getCourses(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "title") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(required = false) String key,
-            @RequestParam(required = false) String operation,
-            @RequestParam(required = false) String value
-
-
+            @RequestParam(required = false) List<String> keys,
+            @RequestParam(required = false) List<String> operations,
+            @RequestParam(required = false) List<String> values
     ) {
         List<SearchCriteria> filters = new ArrayList<>();
-        if (key != null && operation != null && value != null) {
-            filters.add(new SearchCriteria(key, operation, value));
+
+        // Kiểm tra nếu có các tham số tìm kiếm
+        if (keys != null && operations != null && values != null
+                && keys.size() == operations.size() && operations.size() == values.size()) {
+            for (int i = 0; i < keys.size(); i++) {
+                filters.add(new SearchCriteria(keys.get(i), operations.get(i), values.get(i)));
+            }
         }
-        Page<CoursesListResponse> coursePage = courseService.getCourses(page, size, sortBy,sortDirection, filters);
+
+        // Lấy dữ liệu khóa học từ service
+        Page<CoursesListResponse> coursePage = courseService.getCourses(page, size, sortBy, sortDirection, filters);
+
+        // Tạo response và trả kết quả
         PagedResponse<CoursesListResponse> response = new PagedResponse<>(coursePage);
         return ApiResponse.success("Courses retrieved successfully", response);
     }
+
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     Course createCourse(@ModelAttribute CoursesRequest coursesRequest){
         return courseService.addCourse(coursesRequest);

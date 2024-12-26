@@ -1,13 +1,19 @@
 package doan.ptit.programmingtrainingcenter.controller;
 
 
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.Payment;
 import doan.ptit.programmingtrainingcenter.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +55,22 @@ public class PaymentController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error verifying payment.");
         }
+    }
+
+    @GetMapping("/all")
+    public PagedResponse<Payment> getPayments(
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String orderId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> paymentsPage = paymentService.getPaymentsWithFilters(status, orderId, fromDate, toDate, pageable);
+
+        // Bao bọc dữ liệu trong PagedResponse
+        return new PagedResponse<>(paymentsPage);
     }
 
 }

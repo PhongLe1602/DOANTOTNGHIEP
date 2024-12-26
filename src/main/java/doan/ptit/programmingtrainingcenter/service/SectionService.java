@@ -12,4 +12,7 @@ public interface SectionService {
     List<Section> getSections();
     Section addSection(SectionRequest sectionRequest);
     List<Section> getSectionsByCourses(String courseId);
+
+    Section updateSection(String sectionId, SectionRequest sectionRequest);
+    void deleteSection(String sectionId);
 }

@@ -38,36 +38,36 @@ public class UserController {
 
     @GetMapping
     public ApiPageResponse<User> getAllUsers(
-            @RequestParam(required = false) List<String> criteria,
+            @RequestParam(required = false) String criteria,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "asc") String sortDirection,
-            @RequestParam(required = false) String key,
-            @RequestParam(required = false) String operation,
-            @RequestParam(required = false) String value) {
-
+            @RequestParam(defaultValue = "desc") String sortDirection) {
 
         List<Sort.Order> orders = new ArrayList<>();
         try {
-            Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
+            Sort.Direction direction = Sort.Direction.valueOf(sortDirection.trim().toUpperCase());
             orders.add(new Sort.Order(direction, sortBy));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid sort direction: " + sortDirection + ". Use 'asc' or 'desc'.");
         }
 
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(orders));
 
-
         List<SearchCriteria> criteriaList = new ArrayList<>();
-        if (key != null && operation != null && value != null) {
-            criteriaList.add(new SearchCriteria(key, operation, value));
+        if (criteria != null && !criteria.isEmpty()) {
+            String[] criteriaArray = criteria.split(";");
+            for (String criterion : criteriaArray) {
+                String[] parts = criterion.split(",");
+                if (parts.length == 3) {
+                    criteriaList.add(new SearchCriteria(parts[0], parts[1], parts[2]));
+                }
+            }
         }
 
-
         Page<User> users = userService.getAllUsers(criteriaList, pageable);
-        return ApiPageResponse.success(users, "User retrieved successfully");
-
+        return ApiPageResponse.success(users, "Users retrieved successfully");
     }
 
 

@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CategoryRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.Category;
 import org.springframework.stereotype.Service;
 
@@ -14,4 +15,5 @@ public interface CategoryService {
     Category addCategory(CategoryRequest categoryRequest);
     Category updateCategory(String id ,CategoryRequest categoryRequest);
     void deleteCategory(String id);
+    PagedResponse<Category> getCategoriesWithPaginationAndFilters(String name, Category.CategoryType type, int page, int size);
 }

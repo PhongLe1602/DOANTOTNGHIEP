@@ -60,6 +60,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private Cloudinary cloudinary;
 
+
+
     @Override
     public CoursesResponse getCourseById(String id) {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Courses Not Found"));
@@ -147,12 +149,15 @@ public class CourseServiceImpl implements CourseService {
         Course existingCourse = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khóa học với ID: " + courseId));
 
+        Category category = courseCategoryRepository.findById(coursesRequest.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category Not Found"));
         // Update fields from request
         existingCourse.setTitle(coursesRequest.getTitle());
         existingCourse.setDescription(coursesRequest.getDescription());
         existingCourse.setDuration(coursesRequest.getDuration());
         existingCourse.setPrice(BigDecimal.valueOf(coursesRequest.getPrice()));
         existingCourse.setLevel(Course.Level.valueOf(coursesRequest.getLevel()));
+        existingCourse.setCategory(category);
         existingCourse.setUpdatedAt(new Date());
 
         // Upload new thumbnail if provided

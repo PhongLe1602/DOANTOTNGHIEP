@@ -20,6 +20,13 @@ public class GenericSpecification<T> implements Specification<T> {
             String[] keys = criteria.getKey().split("\\.");
             Join<Object, Object> join = root.join(keys[0]);
 
+            Path<?> path = join.get(keys[1]);
+            Class<?> type = path.getJavaType();
+
+            if (type == Boolean.class || type == boolean.class) {
+                boolean boolValue = Boolean.parseBoolean(criteria.getValue());
+                return builder.equal(path, boolValue);
+            }
             // Xử lý các operation tương tự như trước
             switch (criteria.getOperation()) {
                 case ">":
@@ -43,6 +50,14 @@ public class GenericSpecification<T> implements Specification<T> {
             }
         } else {
             // Xử lý các trường hợp không có join (code cũ của bạn)
+            Path<?> path = root.get(criteria.getKey());
+            Class<?> type = path.getJavaType();
+
+            // Xử lý đặc biệt cho Boolean
+            if (type == Boolean.class || type == boolean.class) {
+                boolean boolValue = Boolean.parseBoolean(criteria.getValue());
+                return builder.equal(path, boolValue);
+            }
             switch (criteria.getOperation()) {
                 case ">":
                     return builder.greaterThan(root.get(criteria.getKey()), criteria.getValue());

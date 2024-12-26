@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.repository;
 
 import doan.ptit.programmingtrainingcenter.entity.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-public interface PaymentRepository extends JpaRepository<Payment, String> {
+public interface PaymentRepository extends JpaRepository<Payment, String> , JpaSpecificationExecutor<Payment> {
     Payment findByOrderId(String orderId);
 
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.status = 'COMPLETED' AND p.completedAt >= :fromDate AND p.completedAt <= :toDate")
@@ -31,5 +32,9 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
 
     @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.status = 'COMPLETED'")
     BigDecimal calculateTotalRevenue();
+
+
+    @Query("SELECT MAX(p.transactionCode) FROM Payment p WHERE p.transactionCode LIKE 'TTT%'")
+    String findMaxTransactionCode();
 
 }
