@@ -80,11 +80,12 @@ public class OrderServiceImpl implements OrderService {
 
         // Tạo Payment cho Order
         Payment payment = createPayment(saveOrdered, paymentMethod);
-        createEnrollments(user, orderItems);
+//        createEnrollments(user, orderItems);
         paymentService.createPayment(saveOrdered, saveOrdered.getTotalAmount(), paymentMethod.getId());
         // Nếu phương thức thanh toán là VNPay
         if ("VNPAY".equalsIgnoreCase(paymentMethod.getCode())) {
             // Tạo đường dẫn thanh toán VNPay
+            createEnrollments(user, orderItems);
             String paymentUrl = generateVnpayPaymentUrl(saveOrdered, request);
 
             // Trả về OrderResponse với paymentUrl
@@ -96,7 +97,9 @@ public class OrderServiceImpl implements OrderService {
 
         // Nếu thanh toán trực tiếp
         payment.setStatus(Payment.PaymentStatus.COMPLETED); // Cập nhật trạng thái Payment
+        saveOrdered.setPaymentStatus(Order.PaymentStatus.COMPLETED);
         saveOrdered.setStatus(Order.OrderStatus.COMPLETED);
+        saveOrdered.setCompletedAt(new Date());
         paymentRepository.save(payment);
         orderRepository.save(saveOrdered);
 
