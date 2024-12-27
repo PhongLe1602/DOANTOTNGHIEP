@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.request.CourseReviewRequest;
 import doan.ptit.programmingtrainingcenter.entity.CourseReview;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface CourseReviewService {
     List<CourseReview> getReviewsByUserId (String userId);
     CourseReview createReview (String userId,CourseReviewRequest courseReviewRequest);
     void deleteReview (String id);
+
+    Page<CourseReview> getReviewsWithFilterAndPagination(String courseId, Integer rating, String review, int page, int size);
 }

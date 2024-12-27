@@ -10,9 +10,15 @@ import doan.ptit.programmingtrainingcenter.repository.CourseReviewRepository;
 import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.CourseReviewService;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -76,4 +82,36 @@ public class CourseReviewServiceImpl implements CourseReviewService {
     public void deleteReview(String id) {
         courseReviewRepository.deleteById(id);
     }
+
+    @Override
+    public Page<CourseReview> getReviewsWithFilterAndPagination(String courseId, Integer rating, String review, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<CourseReview> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Lọc theo courseId
+            if (courseId != null && !courseId.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("course").get("id"), courseId));
+            }
+
+            // Lọc theo rating
+            if (rating != null) {
+                predicates.add(criteriaBuilder.equal(root.get("rating"), rating));
+            }
+
+            // Tìm kiếm trong nội dung review (lọc bằng cách so sánh chuỗi)
+            if (review != null && !review.isEmpty()) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("review")), "%" + review.toLowerCase() + "%"));
+            }
+
+            // Trả về tất cả điều kiện lọc kết hợp
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return courseReviewRepository.findAll(specification, pageable);
+    }
+
+
+
 }
