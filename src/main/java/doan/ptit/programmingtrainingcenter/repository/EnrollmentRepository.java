@@ -6,12 +6,13 @@ import doan.ptit.programmingtrainingcenter.entity.OrderItem;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface EnrollmentRepository  extends JpaRepository<Enrollment, String> {
+public interface EnrollmentRepository  extends JpaRepository<Enrollment, String> , JpaSpecificationExecutor<Enrollment> {
     List<Enrollment> findByUserId(String useId);
 
     List<Enrollment> findByOrderItem(OrderItem orderItem);
@@ -45,6 +46,7 @@ public interface EnrollmentRepository  extends JpaRepository<Enrollment, String>
     long countDistinctUserIdFromEnrollments();
 
     long countByStatus(Enrollment.Status status);
+
 
 
 }

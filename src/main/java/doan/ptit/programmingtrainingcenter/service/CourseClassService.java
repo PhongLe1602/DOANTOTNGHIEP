@@ -20,6 +20,7 @@ public interface CourseClassService {
     List<User> getStudentsByClassId(String classId);
     List<CourseClass> getClassByInstructorId(String instructorId);
     List<CourseClass> getClassesByStudentId(String studentId);
+    List<CourseClass> getClassByCourse(String courseId , String userId);
 
 
 }

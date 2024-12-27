@@ -9,6 +9,7 @@ import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.OrderMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
+import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
 import doan.ptit.programmingtrainingcenter.service.OrderService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -64,9 +67,33 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private EnrollmentService enrollmentService;
+
     @Override
     @Transactional
     public OrderResponse addOrder(OrderRequest orderRequest) {
+
+        // Danh sách lưu trữ các khóa học đã đăng ký
+        List<String> enrolledCourses = new ArrayList<>();
+
+        // Kiểm tra từng item trong giỏ hàng
+        for (OrderRequest.OrderItemRequest item : orderRequest.getItems()) {
+            boolean isEnrolled = enrollmentService.checkEnrollment(orderRequest.getUserId(), item.getCourseId());
+            if (isEnrolled) {
+                // Nếu đã đăng ký khóa học, thêm khóa học vào danh sách
+                Course course = courseRepository.findById(item.getCourseId())
+                        .orElseThrow(() -> new RuntimeException("Order Not Found"));
+                enrolledCourses.add(course.getTitle());
+            }
+        }
+
+        // Nếu có khóa học đã đăng ký, ném ngoại lệ với danh sách các khóa học
+        if (!enrolledCourses.isEmpty()) {
+            String errorMessage = "Học viên đã đăng ký khóa học " + String.join(", ", enrolledCourses);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, errorMessage);
+        }
+
         User user = getUser(orderRequest.getUserId());
         PaymentMethod paymentMethod = getPaymentMethod(orderRequest.getPaymentMethodId());
 
@@ -134,6 +161,24 @@ public class OrderServiceImpl implements OrderService {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("Cart not found for user: " + userId));
 
+        // Danh sách lưu trữ các khóa học đã đăng ký
+        List<String> enrolledCourses = new ArrayList<>();
+
+        // Kiểm tra từng khóa học trong giỏ hàng
+        for (CartItem cartItem : cart.getCartItems()) {
+            String courseId = cartItem.getCourse().getId();
+            boolean isEnrolled = enrollmentService.checkEnrollment(userId, courseId);
+            if (isEnrolled) {
+                // Nếu đã đăng ký khóa học, thêm khóa học vào danh sách
+                enrolledCourses.add(cartItem.getCourse().getTitle());
+            }
+        }
+
+        // Nếu có khóa học đã đăng ký, ném ngoại lệ với danh sách các khóa học
+        if (!enrolledCourses.isEmpty()) {
+            String errorMessage = "Bạn đã đăng ký khóa học " + String.join(", ", enrolledCourses);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, errorMessage);
+        }
         PaymentMethod paymentMethod = getPaymentMethod(orderCheckOutRequest.getPaymentMethodId());
 
         // Tạo Order mới từ thông tin trong Cart
@@ -197,6 +242,12 @@ public class OrderServiceImpl implements OrderService {
         // Lấy thông tin khóa học
         Course course = courseRepository.findById(orderCheckOutNowRequest.getCourseId())
                 .orElseThrow(() -> new RuntimeException("Course Not Found"));
+
+        boolean isEnrolled = enrollmentService.checkEnrollment(userId, course.getId());
+        if (isEnrolled) {
+            // Nếu người dùng đã đăng ký khóa học, ném ngoại lệ hoặc trả về lỗi
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn đã đăng ký khóa học này rồi ");
+        }
 
         // Tạo đối tượng Order
         Order order = Order.builder()

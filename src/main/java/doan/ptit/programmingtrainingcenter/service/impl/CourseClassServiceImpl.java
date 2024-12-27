@@ -3,20 +3,19 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 
 import doan.ptit.programmingtrainingcenter.dto.request.ClassStudentRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.CourseClassRequest;
-import doan.ptit.programmingtrainingcenter.entity.ClassStudent;
-import doan.ptit.programmingtrainingcenter.entity.CourseClass;
-import doan.ptit.programmingtrainingcenter.entity.Course;
-import doan.ptit.programmingtrainingcenter.entity.User;
+import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.CourseClassMapper;
-import doan.ptit.programmingtrainingcenter.repository.ClassStudentRepository;
-import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
-import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
-import doan.ptit.programmingtrainingcenter.repository.UserRepository;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
+import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CourseClassServiceImpl implements CourseClassService {
@@ -32,6 +31,9 @@ public class CourseClassServiceImpl implements CourseClassService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
 
 
@@ -95,6 +97,37 @@ public class CourseClassServiceImpl implements CourseClassService {
     public List<CourseClass> getClassesByStudentId(String studentId) {
         return classRepository.findClassesByStudentId(studentId);
     }
+
+    @Override
+    public List<CourseClass> getClassByCourse(String courseId, String userId) {
+        // Tìm kiếm đăng ký của người dùng với khóa học
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
+
+        // Kiểm tra nếu không tìm thấy đăng ký
+        if (enrollment == null) {
+            throw new EntityNotFoundException( "Enrollment not found");
+        }
+
+        // Định nghĩa một Map ánh xạ trạng thái với thông báo
+        Map<String, String> statusMessages = Map.of(
+                "PENDING", "Khóa học chưa được kích hoạt",
+                "STUDYING", "Bạn đã chọn lớp học này"
+        );
+
+        // Kiểm tra trạng thái và xử lý
+        String status = String.valueOf(enrollment.getStatus());
+        if (statusMessages.containsKey(status)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, statusMessages.get(status));
+        }
+
+        if ("ACTIVE".equals(status)) {
+            return classRepository.findAllByCourseId(courseId);
+        }
+
+        // Trạng thái không hợp lệ
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái không hợp lệ");
+    }
+
 
 
 }

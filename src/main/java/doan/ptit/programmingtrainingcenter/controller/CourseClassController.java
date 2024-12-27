@@ -64,4 +64,11 @@ public class CourseClassController {
         return courseClassService.getClassesByStudentId(currentUser.getId());
     }
 
+    @GetMapping("/student/select")
+    public List<CourseClass> getClassCourse(@RequestParam(required = false, defaultValue = "") String courseId) {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
+        return courseClassService.getClassByCourse(courseId,currentUser.getId());
+    }
+
 }

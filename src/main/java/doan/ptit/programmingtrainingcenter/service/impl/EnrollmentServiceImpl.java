@@ -14,8 +14,13 @@ import doan.ptit.programmingtrainingcenter.repository.CourseRepository;
 import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
 import doan.ptit.programmingtrainingcenter.repository.UserRepository;
 import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -116,6 +121,40 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public long getTotalStudentsEnrolled() {
         return enrollmentRepository.countDistinctUserIdFromEnrollments();
     }
+
+    @Override
+    public boolean checkEnrollmentActive(String userId, String courseId) {
+
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(userId, courseId);
+
+        if (enrollment == null) {
+            return false;
+        }
+        else {
+            return  enrollment.getStatus() == Enrollment.Status.ACTIVE;
+        }
+
+    }
+
+    @Override
+    public Page<Enrollment> getEnrollmentsStudent(String userId, String status, String courseName, Pageable pageable) {
+        Specification<Enrollment> spec = (root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.equal(root.get("user").get("id"), userId);
+
+            if (StringUtils.hasText(status)) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("status"), Enrollment.Status.valueOf(status)));
+            }
+
+            if (StringUtils.hasText(courseName)) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("course").get("title"), "%" + courseName + "%"));
+            }
+
+            return predicate;
+        };
+
+        return enrollmentRepository.findAll(spec, pageable);
+    }
+
 
     private EnrollmentResponse mapToEnrollmentResponse(Enrollment enrollment) {
         return EnrollmentResponse.builder()
