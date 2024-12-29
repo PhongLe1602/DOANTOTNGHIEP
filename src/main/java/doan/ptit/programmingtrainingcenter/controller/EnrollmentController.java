@@ -33,8 +33,9 @@ public class EnrollmentController {
         return enrollmentService.getEnrollmentsByUser(userId);
     }
     @GetMapping("/check")
-    public ResponseEntity<Boolean> checkEnrollment(@RequestParam String userId, @RequestParam String courseId) {
-        boolean isEnrolled = enrollmentService.checkEnrollment(userId, courseId);
+    public ResponseEntity<Boolean> checkEnrollment( @RequestParam String courseId) {
+        CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        boolean isEnrolled = enrollmentService.checkEnrollment(currentUser.getId(), courseId);
         return ResponseEntity.ok(isEnrolled);
     }
 
