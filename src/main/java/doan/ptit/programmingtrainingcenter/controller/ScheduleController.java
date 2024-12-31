@@ -4,6 +4,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 import doan.ptit.programmingtrainingcenter.dto.request.RecurringScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.ApiListResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Schedule;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
@@ -39,9 +40,16 @@ public class ScheduleController {
         return scheduleService.getSchedulesByCourse(courseClassId);
     }
     @PostMapping("/recurring")
-    public List<Schedule> createRecurringSchedules(@RequestBody RecurringScheduleRequest recurringScheduleRequest) {
-        return scheduleService.createRecurringSchedules(recurringScheduleRequest);
+    public ApiListResponse<Schedule> createRecurringSchedules(@RequestBody RecurringScheduleRequest recurringScheduleRequest) {
+        List<Schedule> schedules = scheduleService.createRecurringSchedules(recurringScheduleRequest);
+
+        if (schedules.isEmpty()) {
+            return ApiListResponse.error(404, "Không tạo được lịch học nào", schedules);
+        }
+
+        return ApiListResponse.success(201, "Tạo lịch học thành công", schedules);
     }
+
 
     @GetMapping("/user")
     public List<ScheduleResponse> getSchedulesByUser() {

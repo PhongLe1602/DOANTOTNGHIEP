@@ -11,10 +11,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @Service
@@ -127,12 +125,10 @@ public class PaymentServiceImpl implements PaymentService {
         orderRepository.save(order);
 
         payment.setStatus(newStatus);
-        // Lấy mã giao dịch lớn nhất hiện có
-        String lastTransactionCode = paymentRepository.findMaxTransactionCode();
-        int nextTransactionNumber = (lastTransactionCode != null && lastTransactionCode.matches("\\d+"))
-                ? Integer.parseInt(lastTransactionCode) + 1
-                : 1; // Nếu không có mã hoặc không hợp lệ, bắt đầu từ 1
-        payment.setTransactionCode(String.format("TTT%05d", nextTransactionNumber));
+        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        String random = String.format("%04d", new Random().nextInt(10000));
+        String transactionCode = "TT" + timestamp + random;
+        payment.setTransactionCode(transactionCode);
 
         if (newStatus == Payment.PaymentStatus.COMPLETED || newStatus == Payment.PaymentStatus.FAILED) {
             payment.setCompletedAt(new Date());

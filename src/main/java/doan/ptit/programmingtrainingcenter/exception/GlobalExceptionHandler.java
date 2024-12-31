@@ -86,6 +86,18 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleConflictException(ConflictException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setStatus("error");
+        errorResponse.setMessage(ex.getMessage());
+        errorResponse.setStatusCode(HttpStatus.CONFLICT.value());
+        errorResponse.setTimestamp(new Date(System.currentTimeMillis()));
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        errorResponse.setError(HttpStatus.CONFLICT.getReasonPhrase());
+        return errorResponse;
+    }
 
 
 

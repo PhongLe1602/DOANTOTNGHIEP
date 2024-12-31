@@ -2,19 +2,17 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.ClassStudentRequest;
-import doan.ptit.programmingtrainingcenter.entity.ClassStudent;
-import doan.ptit.programmingtrainingcenter.entity.CourseClass;
-import doan.ptit.programmingtrainingcenter.entity.Enrollment;
-import doan.ptit.programmingtrainingcenter.entity.User;
-import doan.ptit.programmingtrainingcenter.repository.ClassStudentRepository;
-import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
-import doan.ptit.programmingtrainingcenter.repository.EnrollmentRepository;
-import doan.ptit.programmingtrainingcenter.repository.UserRepository;
+import doan.ptit.programmingtrainingcenter.entity.*;
+import doan.ptit.programmingtrainingcenter.exception.ConflictException;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.ClassStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,6 +29,9 @@ public class ClassStudentServiceImpl implements ClassStudentService {
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
     @Override
     public ClassStudent addUsertoClassStudent(String userId, ClassStudentRequest classStudentRequest) {
@@ -58,6 +59,21 @@ public class ClassStudentServiceImpl implements ClassStudentService {
         if (!Enrollment.Status.ACTIVE.equals(enrollment.getStatus())) {
             throw new RuntimeException("User's enrollment is not active");
         }
+        // Lấy tất cả các lớp mà học viên đang tham gia với trạng thái 'STUDYING'
+        List<ClassStudent> enrolledClasses = classStudentRepository.findByStudentIdAndStatus(userId, ClassStudent.Status.STUDYING);
+
+        // Kiểm tra lịch học của từng lớp học mà học viên đang tham gia
+        for (ClassStudent enrolledClass : enrolledClasses) {
+            // Lấy lịch học của lớp hiện tại
+            List<Schedule> existingSchedules = scheduleRepository.findByCourseClassId(enrolledClass.getCourseClass().getId());
+
+            for (Schedule existingSchedule : existingSchedules) {
+                // So sánh lịch học của lớp mới với các lớp mà học viên đã tham gia
+                if (isTimeConflict(existingSchedule, courseClass)) {
+                    throw new ConflictException("Bị trùng lịch học");
+                }
+            }
+        }
 
         classStudent.setCourseClass(courseClass);
         classStudent.setStudent(user);
@@ -71,5 +87,17 @@ public class ClassStudentServiceImpl implements ClassStudentService {
         courseClassRepository.save(courseClass);
 
         return  classStudentRepository.save(classStudent);
+    }
+
+    private boolean isTimeConflict(Schedule existingSchedule, CourseClass courseClass) {
+        // Kiểm tra xem thời gian của lớp học mới có trùng với lịch học cũ không
+        List<Schedule> courseClassSchedules = scheduleRepository.findByCourseClassId(courseClass.getId());
+        for (Schedule schedule : courseClassSchedules) {
+            // So sánh thời gian bắt đầu và kết thúc của các buổi học
+            if ((existingSchedule.getStartTime().before(schedule.getEndTime()) && existingSchedule.getEndTime().after(schedule.getStartTime()))) {
+                return true; // Trùng lịch
+            }
+        }
+        return false;
     }
 }
