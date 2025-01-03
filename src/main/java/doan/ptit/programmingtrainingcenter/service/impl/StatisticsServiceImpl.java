@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,11 +68,20 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public BigDecimal getRevenueStatistics(String fromDate, String toDate) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date from = dateFormat.parse(fromDate);
-        Date to = dateFormat.parse(toDate);
 
+        // Parse ngày đầu tiên
+        Date from = dateFormat.parse(fromDate);
+
+        // Lấy ngày kế tiếp bằng cách thêm 1 ngày
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateFormat.parse(toDate));
+        calendar.add(Calendar.DAY_OF_MONTH, 1); // Thêm 1 ngày để bao phủ toàn bộ ngày
+        Date to = calendar.getTime();
+
+        // Gọi repository để tính toán doanh thu
         return paymentRepository.calculateCompletedRevenueInRange(from, to);
     }
+
 
     @Override
     public List<CourseRevenueResponse> getRevenueByCourse(String fromDate, String toDate) throws ParseException {

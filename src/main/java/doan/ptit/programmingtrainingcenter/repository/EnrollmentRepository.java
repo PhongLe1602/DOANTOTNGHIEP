@@ -23,7 +23,7 @@ public interface EnrollmentRepository  extends JpaRepository<Enrollment, String>
         SELECT e FROM Enrollment e
         JOIN FETCH e.user u
         JOIN FETCH e.course c
-        WHERE e.status = 'ACTIVE' ORDER BY e.enrollmentDate DESC
+        WHERE e.status = 'ACTIVE' OR e.status = 'STUDYING' ORDER BY e.enrollmentDate DESC
     """)
     List<Enrollment> findTop3NewestEnrollments(Pageable pageable);
 

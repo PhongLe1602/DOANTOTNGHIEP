@@ -14,8 +14,9 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment, String> , JpaSpecificationExecutor<Payment> {
     Payment findByOrderId(String orderId);
 
-    @Query("SELECT SUM(p.amount) FROM Payment p WHERE p.status = 'COMPLETED' AND p.completedAt >= :fromDate AND p.completedAt <= :toDate")
+    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = 'COMPLETED' AND p.completedAt >= :fromDate AND p.completedAt < :toDate")
     BigDecimal calculateCompletedRevenueInRange(@Param("fromDate") Date fromDate, @Param("toDate") Date toDate);
+
 
     @Query("""
         SELECT oi.course.id AS courseId, c.title AS courseName, SUM(oi.price) AS totalRevenue

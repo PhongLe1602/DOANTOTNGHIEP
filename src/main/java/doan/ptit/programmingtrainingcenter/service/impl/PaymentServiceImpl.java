@@ -159,8 +159,13 @@ public class PaymentServiceImpl implements PaymentService {
         for (OrderItem orderItem : orderItems) {
             List<Enrollment> enrollments = enrollmentRepository.findByOrderItem(orderItem);
             enrollments.forEach(enrollment -> {
+                Category.CategoryType categoryType = enrollment.getCourse().getCategory().getType();
                 // Cập nhật trạng thái Enrollment
-                enrollment.setStatus(Enrollment.Status.ACTIVE);
+                if (categoryType == Category.CategoryType.VIDEO) {
+                    enrollment.setStatus(Enrollment.Status.STUDYING);
+                } else if (categoryType == Category.CategoryType.ONLINE || categoryType == Category.CategoryType.OFFLINE) {
+                    enrollment.setStatus(Enrollment.Status.ACTIVE);
+                }
                 enrollmentRepository.save(enrollment);
 
                 // Tăng số lượng học viên của khóa học
