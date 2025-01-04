@@ -9,11 +9,16 @@ import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import doan.ptit.programmingtrainingcenter.service.EnrollmentService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -126,6 +131,35 @@ public class CourseClassServiceImpl implements CourseClassService {
 
         // Trạng thái không hợp lệ
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái không hợp lệ");
+    }
+
+    @Override
+    public Page<CourseClass> getClassesWithFilters(String className, String courseId, String instructorId, Pageable pageable) {
+        Specification<CourseClass> specification = (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Tìm kiếm theo tên lớp
+            if (className != null && !className.isEmpty()) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("name")),
+                        "%" + className.toLowerCase() + "%"
+                ));
+            }
+
+            // Lọc theo khóa học
+            if (courseId != null && !courseId.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("course").get("id"), courseId));
+            }
+
+            // Lọc theo giảng viên
+            if (instructorId != null && !instructorId.isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("instructor").get("id"), instructorId));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return classRepository.findAll(specification, pageable);
     }
 
 

@@ -61,15 +61,15 @@ public class PaymentController {
     public PagedResponse<Payment> getPayments(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orderId,
+            @RequestParam(required = false) String customerName,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date fromDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date toDate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<Payment> paymentsPage = paymentService.getPaymentsWithFilters(status, orderId, fromDate, toDate, pageable);
+        Page<Payment> paymentsPage = paymentService.getPaymentsWithFilters(status, orderId, customerName, fromDate, toDate, pageable);
 
-        // Bao bọc dữ liệu trong PagedResponse
         return new PagedResponse<>(paymentsPage);
     }
 

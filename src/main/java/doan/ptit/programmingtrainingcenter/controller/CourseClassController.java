@@ -2,11 +2,16 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CourseClassRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,5 +75,19 @@ public class CourseClassController {
                 .getContext().getAuthentication().getPrincipal();
         return courseClassService.getClassByCourse(courseId,currentUser.getId());
     }
+    @GetMapping("/all")
+    public ResponseEntity<PagedResponse<CourseClass>> getClasses(
+            @RequestParam(value = "className", required = false) String className,
+            @RequestParam(value = "courseId", required = false) String courseId,
+            @RequestParam(value = "instructorId", required = false) String instructorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CourseClass> classes = courseClassService.getClassesWithFilters(className, courseId, instructorId, pageable);
+        PagedResponse<CourseClass> response = new PagedResponse<>(classes);
+        return ResponseEntity.ok(response);
+    }
+
 
 }

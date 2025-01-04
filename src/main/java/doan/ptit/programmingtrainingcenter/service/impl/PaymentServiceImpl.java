@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.PaymentService;
+import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -88,24 +89,38 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Page<Payment> getPaymentsWithFilters(String status, String orderId, Date fromDate, Date toDate, Pageable pageable) {
+    public Page<Payment> getPaymentsWithFilters(String status, String orderId, String customerName,
+                                                Date fromDate, Date toDate, Pageable pageable) {
         Specification<Payment> specification = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // Join with Order and User entities
+            Join<Payment, Order> orderJoin = root.join("order");
+            Join<Order, User> userJoin = orderJoin.join("user");
+
             if (status != null && !status.isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), Payment.PaymentStatus.valueOf(status)));
+                predicates.add(criteriaBuilder.equal(root.get("status"),
+                        Payment.PaymentStatus.valueOf(status)));
             }
 
             if (orderId != null && !orderId.isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("order").get("id"), orderId));
+                predicates.add(criteriaBuilder.equal(orderJoin.get("id"), orderId));
+            }
+
+            if (customerName != null && !customerName.isEmpty()) {
+                String searchTerm = "%" + customerName.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(userJoin.get("fullName")), searchTerm));
             }
 
             if (fromDate != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), fromDate));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(
+                        root.get("createdAt"), fromDate));
             }
 
             if (toDate != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), toDate));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(
+                        root.get("createdAt"), toDate));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

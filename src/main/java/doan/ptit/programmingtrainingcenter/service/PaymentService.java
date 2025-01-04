@@ -19,5 +19,6 @@ public interface PaymentService {
     Payment getPaymentById(String paymentId);
     boolean verifyVNPayPayment(Map<String, String> params);
     List<Payment> getAllPayments();
-    Page<Payment> getPaymentsWithFilters(String status, String orderId, Date fromDate, Date toDate, Pageable pageable);
+    Page<Payment> getPaymentsWithFilters(String status, String orderId, String customerName,
+                                         Date fromDate, Date toDate, Pageable pageable);
 }
