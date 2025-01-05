@@ -62,10 +62,10 @@ public class CourseReviewServiceImpl implements CourseReviewService {
 
         Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(user.getId(), course.getId());
         if (enrollment == null) {
-            throw new RuntimeException("Enrollment Not Found");
+            throw new RuntimeException("Bạn chưa đăng ký khóa học này");
         }
         if (!Enrollment.Status.COMPLETED.equals(enrollment.getStatus())) {
-            throw new RuntimeException("User has not completed this course");
+            throw new RuntimeException("Bạn chưa hoàn thành khóa học này");
         }
 
         CourseReview courseReview = new CourseReview();

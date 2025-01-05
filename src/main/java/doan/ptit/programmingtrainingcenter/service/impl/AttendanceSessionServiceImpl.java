@@ -66,6 +66,8 @@ public class AttendanceSessionServiceImpl implements AttendanceSessionService {
 
         String qrContent = fondEndUrl + "/checkin?sessionId=" + savedSession.getId();
         savedSession.setQrContent(qrContent);
+        courseClass.setCompletedSessions(courseClass.getCompletedSessions() + 1);
+        courseClassRepository.save(courseClass);
 
         return attendanceSessionRepository.save(savedSession);
     }

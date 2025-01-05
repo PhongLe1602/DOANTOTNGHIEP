@@ -140,9 +140,15 @@ public class PaymentServiceImpl implements PaymentService {
         orderRepository.save(order);
 
         payment.setStatus(newStatus);
+
+        String prefix = "TT";
+        if ("QRCODE".equals(payment.getPaymentMethod().getCode())) {
+            prefix = "CK";
+        }
+
         String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String random = String.format("%04d", new Random().nextInt(10000));
-        String transactionCode = "TT" + timestamp + random;
+        String transactionCode = prefix + timestamp + random;
         payment.setTransactionCode(transactionCode);
 
         if (newStatus == Payment.PaymentStatus.COMPLETED || newStatus == Payment.PaymentStatus.FAILED) {

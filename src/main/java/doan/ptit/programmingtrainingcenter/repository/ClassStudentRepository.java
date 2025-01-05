@@ -13,4 +13,6 @@ public interface ClassStudentRepository extends JpaRepository<ClassStudent, Stri
     Optional<ClassStudent> findByCourseClassIdAndStudentId(String courseClassId, String studentId);
 
     List<ClassStudent> findByStudentIdAndStatus(String studentId, ClassStudent.Status status);
+
+    boolean existsByCourseClassIdAndStudentIdAndStatus(String courseClassId, String studentId, ClassStudent.Status status);
 }

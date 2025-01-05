@@ -4,19 +4,16 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import doan.ptit.programmingtrainingcenter.dto.request.AttendanceRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.AttendanceSessionDetailResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.StudentAttendanceResponse;
-import doan.ptit.programmingtrainingcenter.entity.Attendance;
-import doan.ptit.programmingtrainingcenter.entity.AttendanceSession;
-import doan.ptit.programmingtrainingcenter.entity.CourseClass;
-import doan.ptit.programmingtrainingcenter.entity.User;
-import doan.ptit.programmingtrainingcenter.repository.AttendanceRepository;
-import doan.ptit.programmingtrainingcenter.repository.AttendanceSessionRepository;
-import doan.ptit.programmingtrainingcenter.repository.CourseClassRepository;
-import doan.ptit.programmingtrainingcenter.repository.UserRepository;
+import doan.ptit.programmingtrainingcenter.entity.*;
+import doan.ptit.programmingtrainingcenter.exception.ConflictException;
+import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.AttendanceService;
 import doan.ptit.programmingtrainingcenter.service.CourseClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +34,13 @@ public class AttendanceServiceImpl implements AttendanceService {
     private AttendanceSessionRepository attendanceSessionRepository;
 
     @Autowired
+    private ClassStudentRepository classStudentRepository;
+
+    @Autowired
     private CourseClassService courseClassService;
+
+    @Autowired
+    private EnrollmentRepository enrollmentRepository;
 
     @Override
     public List<Attendance> getAllAttendance() {
@@ -59,33 +62,51 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
-    public String checkIn(String sessionId, String studentId) {
+    public boolean checkIn(String sessionId, String studentId) {
         AttendanceSession session = attendanceSessionRepository.findById(sessionId).
                 orElseThrow(() -> new RuntimeException("AttendanceSession Not Found"));
         User student = userRepository.findById(studentId).
                 orElseThrow(() -> new RuntimeException("User Not Found"));
         CourseClass courseClass = courseClassRepository.findById(session.getCourseClass().getId()).
                 orElseThrow(() -> new RuntimeException("CourseClass Not Found"));
-        if (session == null || session.getExpiryTime().before(new Date())) {
-            return "Session invalid or expired!";
+
+        if (!classStudentRepository.existsByCourseClassIdAndStudentIdAndStatus(
+                courseClass.getId(), studentId, ClassStudent.Status.STUDYING)) {
+            throw new IllegalArgumentException("Bạn không phải học viên đang học của lớp này");
         }
 
-        Attendance attendance = attendanceRepository.findBySession_IdAndStudent_Id(sessionId, studentId);
-        if (attendance != null) {
-            return "You have already checked in!";
+        if (session.getExpiryTime().before(new Date())) {
+            throw new IllegalArgumentException("Phiên điểm danh đã hết hạn");
         }
 
+
+//        Attendance attendance = attendanceRepository.findBySession_IdAndStudent_Id(sessionId, studentId);
+//        if (attendance != null) {
+//            return false;
+//        }
+        if (attendanceRepository.existsBySession_IdAndStudent_Id(sessionId, studentId)) {
+            throw new ConflictException("Bạn đã điểm danh rồi");
+        }
+
+        Enrollment enrollment = enrollmentRepository.findByUserIdAndCourseId(studentId,courseClass.getCourse().getId());
         // Lưu trạng thái điểm danh
-        attendance = Attendance.builder()
+        Attendance attendance = Attendance.builder()
                 .session(session)
                 .student(student)
                 .status(Attendance.Status.PRESENT)
                 .build();
-        courseClass.setCompletedSessions(courseClass.getCompletedSessions() + 1);
-        courseClassRepository.save(courseClass);
+//        courseClass.setCompletedSessions(courseClass.getCompletedSessions() + 1);
+//        courseClassRepository.save(courseClass);
+        System.out.println(enrollment.getCourse().getTitle());
+        System.out.println(courseClass.getCompletedSessions());
+        System.out.println(courseClass.getTotalSessions());
+        BigDecimal progress = BigDecimal.valueOf((courseClass.getCompletedSessions()) / (double) courseClass.getTotalSessions());
+        progress = progress.setScale(2, RoundingMode.HALF_UP);
+        enrollment.setProgress(progress);
+        enrollmentRepository.save(enrollment);
         attendanceRepository.save(attendance);
 
-        return "Check-in successful!";
+        return true;
     }
 
     @Override

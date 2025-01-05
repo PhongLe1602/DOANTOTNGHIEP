@@ -47,14 +47,14 @@ public class AttendanceController {
     }
 
     @PostMapping("/checkin")
-    public ResponseEntity<String> checkIn(@RequestParam String sessionId) {
+    public ResponseEntity<Boolean> checkIn(@RequestParam String sessionId) {
 
         CustomUserDetails currentUser = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String result = attendanceService.checkIn(sessionId,currentUser.getId());
-        if (result.equals("Check-in successful!")) {
-            return ResponseEntity.ok(result);
+        boolean result = attendanceService.checkIn(sessionId,currentUser.getId());
+        if (result) {
+            return ResponseEntity.ok(true);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(result);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         }
     }
     @GetMapping("/session/{sessionId}")
