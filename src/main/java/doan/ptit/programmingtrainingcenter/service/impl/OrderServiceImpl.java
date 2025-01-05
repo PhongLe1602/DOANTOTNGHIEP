@@ -119,6 +119,7 @@ public class OrderServiceImpl implements OrderService {
             return OrderResponse.builder()
                     .order(saveOrdered)
                     .paymentUrl(paymentUrl)
+                    .paymentMethodCode(paymentMethod.getCode())
                     .build();
         }
 
@@ -142,6 +143,7 @@ public class OrderServiceImpl implements OrderService {
         // Trả về thông tin Order
         return OrderResponse.builder()
                 .order(saveOrdered)
+                .paymentMethodCode(paymentMethod.getCode())
                 .build();
     }
 
@@ -210,6 +212,7 @@ public class OrderServiceImpl implements OrderService {
             String paymentUrl = generateVnpayPaymentUrl(savedOrder,request);
             return OrderResponse.builder()
                     .order(savedOrder)
+                    .paymentMethodCode(paymentMethod.getCode())
                     .paymentUrl(paymentUrl)
                     .build();
         }
@@ -221,6 +224,7 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderResponse.builder()
                 .order(savedOrder)
+                .paymentMethodCode(paymentMethod.getCode())
                 .build();
 
     }
@@ -277,6 +281,7 @@ public class OrderServiceImpl implements OrderService {
             return OrderResponse.builder()
                     .order(savedOrder)
                     .paymentUrl(paymentUrl)
+                    .paymentMethodCode(paymentMethod.getCode())
                     .build();
         }
 
@@ -288,6 +293,7 @@ public class OrderServiceImpl implements OrderService {
         // Nếu không sử dụng VNPay, trả về thông tin Order
         return OrderResponse.builder()
                 .order(savedOrder)
+                .paymentMethodCode(paymentMethod.getCode())
                 .build();
     }
 

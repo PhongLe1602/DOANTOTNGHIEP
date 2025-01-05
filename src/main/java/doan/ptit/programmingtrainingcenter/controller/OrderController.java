@@ -53,7 +53,7 @@ public class OrderController {
     OrderResponse checkOut(@RequestBody OrderCheckOutRequest orderCheckOutRequest, HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
         String userId = jwtService.getUserIdFromToken(token);
-        System.out.println(userId);
+//        System.out.println(userId);
         return orderService.checkout(userId,orderCheckOutRequest);
     }
     @PostMapping("/check-now")

@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class OrderResponse {
 
     private Order order;
+    private String paymentMethodCode;
     private String paymentUrl;
 }
