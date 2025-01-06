@@ -32,7 +32,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final String [] PUBLIC_ENDPOINTS = {"/api/course-topic/**","/api/users/home/instructors","/api/consults/**","/api/student-submissions/**","/api/assignments/**","/api/statistics/**","/api/notifications/**","/api/attendance-session/**","/api/orders/**","/api/attendances/**","/api/classes/**","/api/review/**","/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
+    private final String [] PUBLIC_ENDPOINTS = {"/api/topics/**","/api/course-topic/**","/api/users/home/instructors","/api/consults/**","/api/student-submissions/**","/api/assignments/**","/api/statistics/**","/api/notifications/**","/api/attendance-session/**","/api/orders/**","/api/attendances/**","/api/classes/**","/api/review/**","/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};
 
     private final  UserService userService;
 
