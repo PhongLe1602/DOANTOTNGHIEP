@@ -18,7 +18,7 @@ public interface CourseClassService {
     CourseClass createClass(CourseClassRequest courseClassRequest);
     CourseClass updateClass(String classId , CourseClassRequest courseClassRequest);
     void deleteClass(String id);
-    List<CourseClass> getClassByCourseId(String courseId);
+    List<CourseClass> getClassByCourseId(String courseId, String status);
     List<User> getStudentsByClassId(String classId);
     List<CourseClass> getClassByInstructorId(String instructorId);
     List<CourseClass> getClassesByStudentId(String studentId);

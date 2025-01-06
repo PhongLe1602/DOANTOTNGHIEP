@@ -1,6 +1,8 @@
 package doan.ptit.programmingtrainingcenter.repository;
 
+import doan.ptit.programmingtrainingcenter.entity.Category;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,5 +22,12 @@ public interface CourseRepository extends JpaRepository<Course, String> , JpaSpe
 
     List<Course> findByTitleContainingOrDescriptionContaining(String title, String description);
     long count();
+
+    @Query("SELECT c.instructors FROM Course c WHERE c.id = :courseId")
+    List<User> findInstructorsByCourseId(String courseId);
+
+
+    @Query("SELECT c FROM Course c WHERE c.category.type IN :types")
+    List<Course> findByCategoryTypeIn(@Param("types") List<Category.CategoryType> types);
 
 }

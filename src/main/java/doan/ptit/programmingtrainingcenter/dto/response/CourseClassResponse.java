@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Date;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -14,5 +16,8 @@ public class CourseClassResponse {
     String name;
     String courseName;
     String instructorName;
+    Date startDate;
+    Date endDate;
+    int totalSessions;
 
 }

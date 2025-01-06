@@ -38,10 +38,10 @@ public class CourseClass {
     @Temporal(TemporalType.DATE)
     Date endDate;
 
-    @Column(name = "study_time", nullable = false, length = 50)
+    @Column(name = "study_time", nullable = true, length = 50)
     String studyTime;
 
-    @Column(name = "study_days", nullable = false, length = 50)
+    @Column(name = "study_days", nullable = true, length = 50)
     String studyDays;
 
     @Column(name = "current_student_count", nullable = false, columnDefinition = "INT DEFAULT 0")
@@ -59,7 +59,7 @@ public class CourseClass {
 
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 15, columnDefinition = "ENUM('ACTIVE', 'COMPLETED', 'CANCELLED') DEFAULT 'ACTIVE'")
+    @Column(nullable = false, length = 15, columnDefinition = "ENUM('ACTIVE', 'COMPLETED', 'CANCELLED','PENDING') DEFAULT 'PENDING'")
     Status status;
 
     @CreationTimestamp
@@ -70,7 +70,8 @@ public class CourseClass {
     public enum Status {
         ACTIVE,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        PENDING
     }
 
 }

@@ -3,14 +3,12 @@ package doan.ptit.programmingtrainingcenter.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
-import doan.ptit.programmingtrainingcenter.dto.response.CategoryResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.CoursesListResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.SectionResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.*;
 import doan.ptit.programmingtrainingcenter.entity.*;
 import doan.ptit.programmingtrainingcenter.mapper.CategoryMapper;
 import doan.ptit.programmingtrainingcenter.mapper.CourseMapper;
 import doan.ptit.programmingtrainingcenter.mapper.SectionMapper;
+import doan.ptit.programmingtrainingcenter.mapper.UserMapper;
 import doan.ptit.programmingtrainingcenter.repository.*;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
 import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
@@ -47,6 +45,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private CourseMapper courseMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     @Autowired
     private EnrollmentRepository enrollmentRepository;
@@ -207,6 +208,22 @@ public class CourseServiceImpl implements CourseService {
                 .map(courseMapper::toCourseListResponse)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<InstructorResponse> getInstructorsByCourseId(String courseId) {
+        List<User> instrucrtorsList =  courseRepository.findInstructorsByCourseId(courseId);
+        return userMapper.toListInstructorResponse(instrucrtorsList);
+
+    }
+
+    @Override
+    public List<CoursesListResponse> getCoursesByCategoryType(List<Category.CategoryType> types) {
+        List<Course> filteredCourses = courseRepository.findByCategoryTypeIn(types);
+        return filteredCourses.stream()
+                .map(courseMapper::toCourseListResponse)
+                .collect(Collectors.toList());
+    }
+
 
 
 }

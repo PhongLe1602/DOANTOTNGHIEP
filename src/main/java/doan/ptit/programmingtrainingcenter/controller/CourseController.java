@@ -2,10 +2,8 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
-import doan.ptit.programmingtrainingcenter.dto.response.ApiResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.CoursesListResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
-import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.*;
+import doan.ptit.programmingtrainingcenter.entity.Category;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.security.CustomUserDetails;
 import doan.ptit.programmingtrainingcenter.service.CourseService;
@@ -98,5 +96,16 @@ public class CourseController {
     public List<CoursesListResponse> getAll() {
         return courseService.getAllCourses();
     }
+
+    @GetMapping("/{courseId}/instructors")
+    public List<InstructorResponse> getInstructorsByCourseId(@PathVariable String courseId) {
+        return courseService.getInstructorsByCourseId(courseId);
+    }
+
+    @GetMapping("/all/filter")
+    public List<CoursesListResponse> getCoursesByCategoryType(@RequestParam List<Category.CategoryType> types) {
+        return courseService.getCoursesByCategoryType(types);
+    }
+
 
 }

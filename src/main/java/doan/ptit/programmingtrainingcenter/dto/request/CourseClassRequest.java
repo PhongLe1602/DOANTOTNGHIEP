@@ -22,7 +22,8 @@ public class CourseClassRequest {
     public enum ClassStatus {
         ACTIVE,
         COMPLETED,
-        CANCELLED
+        CANCELLED,
+        PENDING
     }
 
 }

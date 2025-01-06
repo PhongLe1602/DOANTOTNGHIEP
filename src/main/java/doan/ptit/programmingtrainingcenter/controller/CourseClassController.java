@@ -2,6 +2,7 @@ package doan.ptit.programmingtrainingcenter.controller;
 
 
 import doan.ptit.programmingtrainingcenter.dto.request.CourseClassRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.CourseClassScheduleResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.PagedResponse;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
 import doan.ptit.programmingtrainingcenter.entity.User;
@@ -48,9 +49,12 @@ public class CourseClassController {
         courseClassService.deleteClass(id);
     }
     @GetMapping("/course/{courseId}")
-    public List<CourseClass> getClassByCourseId(@PathVariable String courseId) {
-        return courseClassService.getClassByCourseId(courseId);
+    public List<CourseClass> getClassByCourseId(
+            @PathVariable String courseId,
+            @RequestParam(required = false) String status) {
+        return courseClassService.getClassByCourseId(courseId, status);
     }
+
 
     @GetMapping("{classId}/students")
     public List<User> getStudentOfClass(@PathVariable String classId) {

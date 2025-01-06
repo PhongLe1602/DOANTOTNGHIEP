@@ -3,7 +3,10 @@ package doan.ptit.programmingtrainingcenter.service;
 import doan.ptit.programmingtrainingcenter.dto.request.CoursesRequest;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesListResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.CoursesResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.InstructorResponse;
+import doan.ptit.programmingtrainingcenter.entity.Category;
 import doan.ptit.programmingtrainingcenter.entity.Course;
+import doan.ptit.programmingtrainingcenter.entity.User;
 import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -22,5 +25,8 @@ public interface CourseService {
     List<Course> getCourseByInstructor(String instructorId);
     List<Course> searchCourses(String query);
     List<CoursesListResponse> getAllCourses();
+    List<InstructorResponse> getInstructorsByCourseId(String courseId);
+
+    List<CoursesListResponse> getCoursesByCategoryType(List<Category.CategoryType> types);
 
 }

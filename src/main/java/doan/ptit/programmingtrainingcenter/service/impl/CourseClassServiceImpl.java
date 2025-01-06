@@ -61,7 +61,7 @@ public class CourseClassServiceImpl implements CourseClassService {
         User user = userRepository.findById(courseClassRequest.getInstructorId()).
                 orElseThrow(() -> new RuntimeException("User Not Found"));
         CourseClass newClass = courseClassMapper.toClass(courseClassRequest, course ,user);
-
+        newClass.setMaxStudents(30);
         return classRepository.save(newClass);
     }
 
@@ -84,9 +84,13 @@ public class CourseClassServiceImpl implements CourseClassService {
     }
 
     @Override
-    public List<CourseClass> getClassByCourseId(String courseId) {
-        return classRepository.findAllByCourseId(courseId);
+    public List<CourseClass> getClassByCourseId(String courseId, String status) {
+        if (status == null || status.isEmpty()) {
+            return classRepository.findAllByCourseId(courseId);
+        }
+        return classRepository.findAllByCourseIdAndStatus(courseId, CourseClass.Status.valueOf(status));
     }
+
 
     @Override
     public List<User> getStudentsByClassId(String classId) {

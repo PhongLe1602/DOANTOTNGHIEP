@@ -1,6 +1,9 @@
 package doan.ptit.programmingtrainingcenter.mapper;
 
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.CourseClassResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.CourseClassScheduleResponse;
+import doan.ptit.programmingtrainingcenter.dto.response.ScheduleListResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Course;
 import doan.ptit.programmingtrainingcenter.entity.CourseClass;
@@ -22,9 +25,19 @@ public interface ScheduleMapper {
     Schedule toEntity(ScheduleRequest scheduleRequest , CourseClass courseClass );
 
 
-    @Mapping(target = "courseClass", source = "courseClass") // Chuyển đổi từ course.id
+    @Mapping(target = "courseClass", source = "courseClass")
     ScheduleResponse toResponse(Schedule schedule);
 
     List<ScheduleResponse> toResponseList(List<Schedule> schedules);
+
+
+//    @Mapping(target = "instructorName", source = "schedule.courseClass.instructor.fullName")
+//    ScheduleListResponse toResponseScheduleList(Schedule schedule);
+//
+//    List<ScheduleListResponse> toResponseListSchedule(List<Schedule> schedules);
+
+    @Mapping(target = "courseClass", source = "courseClassResponse")
+    @Mapping(target = "scheduleList", source = "schedules")
+    CourseClassScheduleResponse toCourseClassScheduleResponse(CourseClassResponse courseClassResponse, List<Schedule> schedules);
 
 }

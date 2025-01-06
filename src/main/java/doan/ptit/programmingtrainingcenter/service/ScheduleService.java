@@ -3,6 +3,7 @@ package doan.ptit.programmingtrainingcenter.service;
 
 import doan.ptit.programmingtrainingcenter.dto.request.RecurringScheduleRequest;
 import doan.ptit.programmingtrainingcenter.dto.request.ScheduleRequest;
+import doan.ptit.programmingtrainingcenter.dto.response.CourseClassScheduleResponse;
 import doan.ptit.programmingtrainingcenter.dto.response.ScheduleResponse;
 import doan.ptit.programmingtrainingcenter.entity.Schedule;
 import org.springframework.stereotype.Service;
@@ -19,4 +20,8 @@ public interface ScheduleService {
     List<Schedule> getAllSchedules();
     List<ScheduleResponse> getSchedulesByUser(String userId);
     List<ScheduleResponse> getSchedulesByInstructor(String instructorId);
+
+    CourseClassScheduleResponse getSchedulesOfCourseClass(String courseClassId);
+
+    List<Schedule> updateRecurringSchedules(RecurringScheduleRequest request);
 }
