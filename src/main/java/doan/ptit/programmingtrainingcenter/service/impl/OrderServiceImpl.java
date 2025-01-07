@@ -137,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItem orderItem : orderItems) {
             Course course = orderItem.getCourse();
-            course.setStudentCount(course.getStudentCount() + 1);
+//            course.setStudentCount(course.getStudentCount() + 1);
             courseRepository.save(course);
         }
         // Trả về thông tin Order
@@ -218,7 +218,7 @@ public class OrderServiceImpl implements OrderService {
         }
         for (OrderItem orderItem : orderItems) {
             Course course = orderItem.getCourse();
-            course.setStudentCount(course.getStudentCount() + 1);
+//            course.setStudentCount(course.getStudentCount() + 1);
             courseRepository.save(course);
         }
 
@@ -286,7 +286,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
 
-        course.setStudentCount(course.getStudentCount() + 1);
+//        course.setStudentCount(course.getStudentCount() + 1);
         courseRepository.save(course);
 
 

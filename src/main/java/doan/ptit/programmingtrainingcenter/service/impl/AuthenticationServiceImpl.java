@@ -120,7 +120,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setIsEnabled(false);
         user.setRoles(Collections.singletonList(studentRole));
         userRepository.save(user);
-        emailService.sendEmail(user.getEmail(),"Activate your account","Please click the following link to activate your account: " + activationLink);
+        emailService.sendEmail(
+                user.getEmail(),
+                "Kích hoạt tài khoản của bạn",
+                String.format("""
+        Xin chào%s,
+            
+        Chào mừng bạn đến với hệ thống của chúng tôi!
+            
+        Vui lòng nhấp vào liên kết dưới đây để kích hoạt tài khoản của bạn:
+        %s
+            
+   
+        Nếu bạn cần hỗ trợ, vui lòng liên hệ với chúng tôi qua email support@example.com
+            
+        Trân trọng,
+        Đội ngũ hỗ trợ
+        """,
+                        user.getFullName() != null ? " " + user.getFullName() : "",
+                        activationLink
+                )
+        );
         return AuthResponse.builder()
                 .message("Đăng ký thành công")
                 .status("success")

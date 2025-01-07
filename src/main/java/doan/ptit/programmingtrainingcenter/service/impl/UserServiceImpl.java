@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService {
 
         // Generate activation token
         String token = jwtService.generateActivationToken(userRequest.getEmail());
-        String activationLink = fondEndUrl + "/activate-account?token=" + token;
+        String activationLink = fondEndUrl + "/admin/activate-account?token=" + token;
 
         // Map UserRequest to User
         User user = userMapper.toUser(userRequest);
@@ -116,11 +116,39 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         // Send activation email with temporary password
+        String emailTemplate = """
+        Kính gửi %s,
+            
+        Chúc mừng bạn đã đăng ký thành công tài khoản tại hệ thống của chúng tôi!
+            
+        🔐 THÔNG TIN ĐĂNG NHẬP
+        ───────────────────────
+        • Email: %s
+        • Mật khẩu tạm thời: %s
+            
+        ✨ KÍCH HOẠT TÀI KHOẢN
+        ───────────────────────
+        Vui lòng nhấp vào liên kết dưới đây để kích hoạt tài khoản của bạn:
+        %s
+            
+        Lưu ý:
+        • Vui lòng đổi mật khẩu ngay sau khi đăng nhập lần đầu
+            
+        Nếu bạn cần hỗ trợ thêm, vui lòng liên hệ với chúng tôi qua:
+        • Email: support@traincenter.com
+        • Hotline: 1900 1007
+            
+        Trân trọng,
+        Đội ngũ hỗ trợ
+        """;
+
         emailService.sendEmail(
                 user.getEmail(),
-                "Activate your account",
+                "Kích hoạt tài khoản - Thông tin đăng nhập",
                 String.format(
-                        "Welcome! Your temporary password is: %s\nPlease click the following link to activate your account: %s",
+                        emailTemplate,
+                        user.getFullName() != null ? user.getFullName() : "Quý khách",
+                        user.getEmail(),
                         randomPassword,
                         activationLink
                 )

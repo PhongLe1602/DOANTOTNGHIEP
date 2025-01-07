@@ -11,6 +11,7 @@ import doan.ptit.programmingtrainingcenter.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,6 +53,7 @@ public class CourseController {
         return ApiResponse.success("Courses retrieved successfully", response);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_COURSES')")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     Course createCourse(@ModelAttribute CoursesRequest coursesRequest){
         return courseService.addCourse(coursesRequest);
@@ -67,10 +69,12 @@ public class CourseController {
     public List<Course> getCoursesByUserId(@PathVariable String userId) {
         return courseService.getCoursesByUser(userId);
     }
+    @PreAuthorize("hasAuthority('MANAGE_COURSES')")
     @PutMapping("/{id}")
     public Course updateCourse(@PathVariable String id, @ModelAttribute CoursesRequest request) {
         return courseService.updateCourse(id, request);
     }
+    @PreAuthorize("hasAuthority('MANAGE_COURSES')")
     @DeleteMapping("/{id}")
     public boolean deleteCourse(@PathVariable String id) {
         return courseService.deleteCourse(id);
