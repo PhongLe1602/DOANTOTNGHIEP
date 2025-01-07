@@ -23,7 +23,7 @@ public interface CourseClassMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "status", ignore = true)
+//    @Mapping(target = "status", ignore = true)
     @Mapping(target = "course", source = "course")
     @Mapping(target = "instructor", source = "instructor")
     void updateClass(@MappingTarget CourseClass courseClassUpdate, CourseClassRequest courseClassRequest , Course course , User instructor);
