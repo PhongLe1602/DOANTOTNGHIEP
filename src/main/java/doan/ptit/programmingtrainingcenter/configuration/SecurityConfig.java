@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,6 +31,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final String [] PUBLIC_ENDPOINTS = {"/api/topics/**","/api/course-topic/**","/api/users/home/instructors","/api/consults/**","/api/student-submissions/**","/api/assignments/**","/api/statistics/**","/api/notifications/**","/api/attendance-session/**","/api/orders/**","/api/attendances/**","/api/classes/**","/api/review/**","/api/auth/**" ,"/api/categories/**","/api/courses/**","/api/sections/**","/api/lessons/**","/api/enrollments/**","/api/payment-method/**","/api/payments/**","/api/schedule/**","/api/carts/**"};

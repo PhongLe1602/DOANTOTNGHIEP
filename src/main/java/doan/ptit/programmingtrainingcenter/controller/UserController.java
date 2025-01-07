@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -72,6 +73,7 @@ public class UserController {
 
 
 
+//    @PreAuthorize("hasAuthority('MANAGE_USERS')")
     @GetMapping("/{id}")
     User getUserById(@PathVariable String id) {
         return userService.getUserById(id);
@@ -80,10 +82,13 @@ public class UserController {
     User createUser(@RequestBody UserRequest userRequest) {
         return userService.createUser(userRequest);
     }
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
     @PutMapping("/{id}")
     public User updateUser(@PathVariable String id, @ModelAttribute UserRequest userRequest) {
         return userService.updateUser(id, userRequest);
     }
+
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     Boolean deleteUser(@PathVariable String id) {
         return userService.deleteUser(id);
@@ -112,17 +117,20 @@ public class UserController {
         return userService.getAllTeachers();
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/role")
     public boolean addRole(@RequestBody UserRoleRequest userRoleRequest) {
         userService.assignRole(userRoleRequest);
         return true;
     }
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{userId}/role/{roleId}")
     public boolean deleteRole(@PathVariable String userId, @PathVariable String roleId) {
         userService.deleteRole(userId,roleId);
         return true;
     }
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PostMapping("/block")
     public boolean blockUser(@RequestBody BlockUserRequest blockUserRequest) {
         return userService.blockUser(blockUserRequest);

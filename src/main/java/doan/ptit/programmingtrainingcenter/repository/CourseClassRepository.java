@@ -14,6 +14,7 @@ import java.util.List;
 @Repository
 public interface CourseClassRepository extends JpaRepository<CourseClass,String> , JpaSpecificationExecutor<CourseClass> {
     List<CourseClass> findAllByCourseId(String courseId);
+
     List<CourseClass> findAllByCourseIdAndStatus(String courseId, CourseClass.Status status);
 
     @Query("SELECT cs.student FROM ClassStudent cs WHERE cs.courseClass.id = :classId")

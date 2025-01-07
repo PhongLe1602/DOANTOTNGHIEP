@@ -130,7 +130,7 @@ public class CourseClassServiceImpl implements CourseClassService {
         }
 
         if ("ACTIVE".equals(status)) {
-            return classRepository.findAllByCourseId(courseId);
+            return classRepository.findAllByCourseIdAndStatus(courseId, CourseClass.Status.valueOf("ACTIVE"));
         }
 
         // Trạng thái không hợp lệ
